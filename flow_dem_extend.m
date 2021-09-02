@@ -2,6 +2,7 @@
 % This script creates complete, gridded thickness and velocity datasets, and extends
 % them 100 km beyond present day coastlines. The final product is on the 
 
+save_everything = true; 
 %% Blend ITS_LIVE and Measures (Rignot) velocities: 
 
 % Load ITS_LIVE data: 
@@ -62,8 +63,7 @@ clear indi indm vxi vxm vyi vym wi wm
 % contrast, Bedmap2's surface is the surface you stand on. 
 
 % Start with the BedMachine surface: 
-[h_bm,x_bm,y_bm] = bedmachine_data('surface'); 
-H_bm = bedmachine_data('thickness'); 
+[H_bm,x_bm,y_bm] = bedmachine_data('thickness'); 
 mask_bm = bedmachine_data('mask'); 
 grounded = ismember(mask_bm,[1 2 4]); 
 [X_bm,Y_bm] = meshgrid(x_bm,y_bm); 
@@ -78,10 +78,14 @@ h_b2(isn) = bedmap2_interp(X_bm(isn),Y_bm(isn),'surface','nearest');
 
 % load bamber: 
 h_bam = wgs2gl04c(X_bm,Y_bm,bamberdem_interp(X_bm,Y_bm));
+h_bam(bwdist(~isfinite(h_bam))*.5<15) = NaN; % Eliminates 15 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
 
 % RAMP2:
 [Iramp,xramp,yramp] = geoimread('ramp2_dem_osu91a200m.tif'); % The OSU version of the file is referenced to the geoid whereas the RAM2_DEM.tif is referenced to wgs84. Use OSU.  
-h_ramp = interp2(xramp,yramp,double(Iramp),X_bm,Y_bm); 
+Iramp = double(Iramp); 
+Iramp(Iramp==0) = NaN; % Convert zeros to NaN so interpolation won't produce thin ice shelf edges.  
+h_ramp = interp2(xramp,yramp,Iramp,X_bm,Y_bm); 
+h_ramp(bwdist(~isfinite(h_ramp))*.5<15) = NaN;  % Eliminates 15 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
 
 %% Remove firn air content 
 % (BedMachine already has FAC removed) 
@@ -90,10 +94,13 @@ xf = h5read('FULL_CUBE_v4.h5','/x');
 yf = h5read('FULL_CUBE_v4.h5','/y');
 fac = interp2(xf,yf,permute(squeeze(mean(h5read('FULL_CUBE_v4.h5','/fac_gemb8'),'omitnan')),[2 1]),X_bm,Y_bm); 
 
-h_rema = h_rema - fac; 
-h_b2 = h_b2 - fac; 
-h_bam = h_bam-fac; 
-h_ramp = h_ramp-fac; 
+hydro = 9.3364; % factor for converting surface elevation to thickness. 
+H_rema = (h_rema - fac)*hydro; 
+H_b2 = (h_b2 - fac)*hydro; 
+H_bam = (h_bam-fac)*hydro; 
+H_ramp = (h_ramp-fac)*hydro; 
+
+clear h* Iramp fac
 
 %% Combine surface heights 
 
@@ -102,61 +109,57 @@ D = bwdist(mask_bm==0)*0.5;
 D_thresh = 10; % replace thin ice within 10 km of ocean (for example, where Mertz Glacier tongue broke off and is now thin on its end in the BedMachinne data, overwrite that thin ice with the full thickness from Bedmap2.) 
 
 % Start with BedMachine as the basis: 
-h = h_bm; 
-source = zeros(size(h_bm),'uint8'); 
-source(h_bm>0) = 1; 
+source = zeros(size(H_bm),'uint8'); 
+source(H_bm>0 | grounded) = 1; 
 
-source(h<(h_rema/2) & D<D_thresh & ~grounded) = 2; 
-h(source==2) = h_rema(source==2); 
+% Start overwriting BedMachine: 
+source(H_bm<(H_rema/2) & D<D_thresh & ~grounded) = 2; 
+H_bm(source==2) = H_rema(source==2); 
 
-source(h<(h_b2/2) & D<D_thresh & ~grounded) = 3; 
-h(source==3) = h_b2(source==3); 
+source(H_bm<(H_b2/2) & D<D_thresh & ~grounded) = 3; 
+H_bm(source==3) = H_b2(source==3); 
 
-source(h<(h_bam/2) & D<D_thresh & ~grounded) = 4; 
-h(source==4) = h_bam(source==4); 
+source(H_bm<(H_bam/2) & D<D_thresh & ~grounded) = 4; 
+H_bm(source==4) = H_bam(source==4); 
 
-source(h<(h_ramp/2) & D<D_thresh & ~grounded) = 5; 
-h(source==5) = h_ramp(source==5); 
+source(H_bm<(H_ramp/2) & D<D_thresh & ~grounded) = 5; 
+H_bm(source==5) = H_ramp(source==5); 
 
-h(h==0) = nan; 
-h(~grounded) = h(~grounded)*9.34; % switches from surface elevation to thickness
-h(grounded) = H_bm(grounded); % but grounded thickness does *not* get multiplied by 9.34.
-source(grounded) = 1; % all grounded ice is Bedmachine v2.
-h(h>max(H_bm)) = nan; % because a few crazy bits went haywire. 
+H_bm(H_bm==0 & ~grounded) = nan; 
 
-L = bwlabel(isnan(h)); 
-h = regionfill(h,L>1); 
+L = bwlabel(isnan(H_bm)); 
+H_bm = regionfill(H_bm,L>1); 
 source(L>1) = 6; % interpolated
 
-H = interp2(x_bm,y_bm,h,X,Y); % Interpolate compiled thickness grid
+H = interp2(x_bm,y_bm,H_bm,X,Y); % Interpolate compiled thickness grid
 isn = isnan(H); 
-H(isn) = interp2(x_bm,y_bm,h,X(isn),Y(isn),'nearest'); % Do a second pass with nearest-neighbor interpolation to get the edgy bits.
+H(isn) = interp2(x_bm,y_bm,H_bm,X(isn),Y(isn),'nearest'); % Do a second pass with nearest-neighbor interpolation to get the edgy bits.
 
 H_source = interp2(x_bm,y_bm,source,X,Y,'nearest'); 
 
 clear ax bad D_thresh h H_bm grounded D h* Iramp source tidal X_bm Y_bm x_bm y_bm xramp yramp fac mask_bm isn xf yf mask_bm
 
 readme = 'created by flow_dem_extend.m. H_source 1=BedMachine v2, 2=REMA, 3=Bedmap2, 4=bamber, 5=ramp2_dem_osu91a200m ';
-% save('flow_dem_extend_1.mat','-v7.3') % takes 10 minutes to get here
+if save_everything
+   save('flow_dem_extend_1.mat','-v7.3') % takes 10 minutes to get here
 
-%% 
+else
 
-
-figure
-subplot(1,2,1)
-h = imagescn(x,y,H);
-bedmachine
-ax = gca;
-caxis([0 500])
-subplot(1,2,2)
-h(2) = imagescn(x,y,H_source);
-ax(2) = gca;
-bedmachine
-linkaxes(ax,'xy');
-return 
-% else 
-%    load('flow_dem_extend_1.mat')
-% end
+   %load('flow_dem_extend_1.mat')
+   
+   figure
+   subplot(1,2,1)
+   h = imagescn(x,y,H);
+   bedmachine
+   ax = gca;
+   caxis([0 500])
+   subplot(1,2,2)
+   h(2) = imagescn(x,y,H_source);
+   ax(2) = gca;
+   bedmachine
+   linkaxes(ax,'xy');
+end
+ 
 
 %% Ice shelf ID mask  
 % The mask we're loading was generated by iceshelf_mask_generator.m.
@@ -252,7 +255,7 @@ vvs = vvs(isf);
 
 % Grid up the streamline data:  
 vg = gridbin(xx,yy,vv,x,y); % gridbin is on my GitHub. It bins the average velocity observation in each grid cell. It's not as beautiful as gridfit, but it's the only way to deal with nearly a billion scattered data points.   
-vsg = gridbin(xx,yy,vvs,x,y,@median);
+vsg = gridbin(xx,yy,vvs,x,y,@median); % should really be @mode, but @median is waaay faster 
 
 % Create temporary grids so we don't accidentally do anything dumb and
 % overwrite any good data: 
@@ -376,7 +379,10 @@ hold on
 axis off
 set(gca,'colorscale','log')
 caxis([1.5 4000])
-% export_fig flow_extruded2.png -r600
+if save_everything
+   export_fig flow_extruded2.png -r600
+   close all
+end
 
 % hold on
 % q = quiversc(x,y,vx,vy,'density',200);
@@ -385,7 +391,9 @@ caxis([1.5 4000])
 
 %% 
 
-% save('flow_dem_extend_2.mat','vx','vy','iceshelves','v_source','x','y','-v7.3')
+if save_everything
+ save('flow_dem_extend_2.mat','vx','vy','iceshelves','v_source','x','y','-v7.3')
+end
 
 clear tmp* V vsg vv vvs iceshelves_* bad ch row col D* dx dy L M perim q xx yy
 
@@ -545,52 +553,55 @@ H_source(H_source==0) = 7;
 
 %% Write 
 
-% Switch the dimension order to match convention: 
-iceshelves = ipermute(iceshelves,[2 1]); 
-H = ipermute(H,[2 1]); 
-H_source = ipermute(H_source,[2 1]); 
-vx = ipermute(vx,[2 1]); 
-vy = ipermute(vy,[2 1]); 
-v_source = ipermute(v_source,[2 1]); 
+if save_everything
+   
+   % Switch the dimension order to match convention: 
+   iceshelves = ipermute(iceshelves,[2 1]); 
+   H = ipermute(H,[2 1]); 
+   H_source = ipermute(H_source,[2 1]); 
+   vx = ipermute(vx,[2 1]); 
+   vy = ipermute(vy,[2 1]); 
+   v_source = ipermute(v_source,[2 1]); 
 
 
-fn = ['extruded_antarctica_',datestr(now,'yyyy-mm-dd'),'.h5'];
+   fn = ['extruded_antarctica_',datestr(now,'yyyy-mm-dd'),'.h5'];
 
-h5create(fn,'/x',size(x),'Datatype','single')
-h5write(fn,'/x',single(x))
+   h5create(fn,'/x',size(x),'Datatype','single')
+   h5write(fn,'/x',single(x))
 
-h5create(fn,'/y',size(y),'Datatype','single')
-h5write(fn,'/y',single(y))
+   h5create(fn,'/y',size(y),'Datatype','single')
+   h5write(fn,'/y',single(y))
 
-h5create(fn,'/thickness',size(iceshelves),'Datatype','single')
-h5write(fn,'/thickness',single(H))
-h5writeatt(fn,'/thickness','units','meters')
-h5writeatt(fn,'/thickness','Description','Ice thickness compiled from all available datasets and extruded. Hydrostatic assumption (multiplying surface by 9.34) is applied to all floating ice.')
+   h5create(fn,'/thickness',size(iceshelves),'Datatype','single')
+   h5write(fn,'/thickness',single(H))
+   h5writeatt(fn,'/thickness','units','meters')
+   h5writeatt(fn,'/thickness','Description','Ice thickness compiled from all available datasets and extruded. Hydrostatic assumption (multiplying surface by 9.34) is applied to all floating ice.')
 
-h5create(fn,'/vx',size(vx),'Datatype','single')
-h5write(fn,'/vx',single(vx))
-h5writeatt(fn,'/vx','units','m/yr')
-h5writeatt(fn,'/vx','Description','Ice velocity in the polar stereographic x direction.') 
+   h5create(fn,'/vx',size(vx),'Datatype','single')
+   h5write(fn,'/vx',single(vx))
+   h5writeatt(fn,'/vx','units','m/yr')
+   h5writeatt(fn,'/vx','Description','Ice velocity in the polar stereographic x direction.') 
 
-h5create(fn,'/vy',size(vx),'Datatype','single')
-h5write(fn,'/vy',single(vy))
-h5writeatt(fn,'/vy','units','m/yr')
-h5writeatt(fn,'/vy','Description','Ice velocity in the polar stereographic y direction.') 
+   h5create(fn,'/vy',size(vx),'Datatype','single')
+   h5write(fn,'/vy',single(vy))
+   h5writeatt(fn,'/vy','units','m/yr')
+   h5writeatt(fn,'/vy','Description','Ice velocity in the polar stereographic y direction.') 
 
-h5create(fn,'/thickness_source',size(H_source),'Datatype','uint8')
-h5write(fn,'/thickness_source',H_source)
-h5writeatt(fn,'/thickness_source','data source','1=BedMachine v2, 2=REMA-FAC, 3=Bedmap2-FAC, 4=Bamber-FAC, 5=RAMP2-FAC, 6=interpolated, 7=extrapolated. And FAC is the mean from GEMB.')
+   h5create(fn,'/thickness_source',size(H_source),'Datatype','uint8')
+   h5write(fn,'/thickness_source',H_source)
+   h5writeatt(fn,'/thickness_source','data source','1=BedMachine v2, 2=REMA-FAC, 3=Bedmap2-FAC, 4=Bamber-FAC, 5=RAMP2-FAC, 6=interpolated, 7=extrapolated. And FAC is the mean from GEMB.')
 
-h5create(fn,'/v_source',size(v_source),'Datatype','uint8')
-h5write(fn,'/v_source',v_source)
-h5writeatt(fn,'/v_source','data source','1=ITS_LIVE (Gardner), 2=MEaSUREs v2 (Rignot), 3=error weighted mean of ITS_LIVE and MEaSURES v2, 3=interpolated, 4=extrapolated.')
+   h5create(fn,'/v_source',size(v_source),'Datatype','uint8')
+   h5write(fn,'/v_source',v_source)
+   h5writeatt(fn,'/v_source','data source','1=ITS_LIVE (Gardner), 2=MEaSUREs v2 (Rignot), 3=error weighted mean of ITS_LIVE and MEaSURES v2, 3=interpolated, 4=extrapolated.')
 
-h5create(fn,'/iceshelf_mask',size(iceshelves),'Datatype','uint8')
-h5write(fn,'/iceshelf_mask',iceshelves)
-h5writeatt(fn,'/iceshelf_mask','ice shelf names','see iceshelves_2008_v2_names.csv for all 181 ice shelf names.')
-h5writeatt(fn,'/iceshelf_mask','data source','ice shelf masks dilated and extruded from Mouginot 2008 data.')
+   h5create(fn,'/iceshelf_mask',size(iceshelves),'Datatype','uint8')
+   h5write(fn,'/iceshelf_mask',iceshelves)
+   h5writeatt(fn,'/iceshelf_mask','ice shelf names','see iceshelves_2008_v2_names.csv for all 181 ice shelf names.')
+   h5writeatt(fn,'/iceshelf_mask','data source','ice shelf masks dilated and extruded from Mouginot 2008 data.')
 
-h5writeatt(fn,'/','Description','Antarctic ice velocity and thickness extruded along flow at the end of ice shelves. Created by flow_dem_extend.m and on GitHub in a repository named ice-shelf-geometry.')
-h5writeatt(fn,'/','Author','Chad A. Greene, NASA/JPL') 
-h5writeatt(fn,'/','Projection','EPSG:3031 South Polar Stereographic, standard parallel 71S') 
+   h5writeatt(fn,'/','Description','Antarctic ice velocity and thickness extruded along flow at the end of ice shelves. Created by flow_dem_extend.m and on GitHub in a repository named ice-shelf-geometry.')
+   h5writeatt(fn,'/','Author','Chad A. Greene, NASA/JPL') 
+   h5writeatt(fn,'/','Projection','EPSG:3031 South Polar Stereographic, standard parallel 71S') 
 
+end
