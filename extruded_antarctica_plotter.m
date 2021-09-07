@@ -6,7 +6,7 @@
 
 %% Inspect data: 
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-01.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
 h5disp(fn)
 
 %% Load data: 
@@ -36,8 +36,9 @@ title('iceshelf_mask','interpreter','none','fontname','courier')
 
 %% Velocity Source 
 
+v_source(v_source==0) = 5; 
 figure
-imagescn(x,y,v_source) 
+h = imagescn(x,y,v_source) ; 
 bedmachine
 axis off
 ax(1) = gca; 
@@ -54,7 +55,7 @@ colormap(cm);
 caxis([0.5 5.5])
 cb = colorbar; 
 set(cb,'ytick',1:5,'yticklabel',{'ITSLIVE';'MEaSUREs v2';'blend';'interpolated';'extrapolated'},'ydir','reverse')
-title('iceshelf_mask','interpreter','none','fontname','courier')
+title('v_source','interpreter','none','fontname','courier')
 
 % export_fig extruded_v_source.png -r500 -p0.01 
 
@@ -82,7 +83,7 @@ ylabel(cb,'velocity m/yr')
 
 linkaxes(ax,'xy') 
 
-% export_fig extruded_v.png -r500 -p0.01 
+% export_fig extruded_velocity.png -r500 -p0.01 
 
 %% Thickness Source 
 
@@ -116,8 +117,9 @@ bedmachine
 ax(2) = gca; 
 caxis([0 500]) 
 title('thickness','interpreter','none','fontname','courier')
-
+cmocean dense
 linkaxes(ax,'xy') 
-
+cb=colorbar; 
+ylabel(cb,'thickness (m)')
 % export_fig extruded_thickness.png -r500 -p0.01 
 

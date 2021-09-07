@@ -150,12 +150,12 @@ H(isn) = interp2(x_bm,y_bm,H_bm,X(isn),Y(isn),'nearest'); % Do a second pass wit
 
 H_source = interp2(x_bm,y_bm,source,X,Y,'nearest'); 
 
-clear ax bad D_thresh h H_bm grounded D h* Iramp source tidal X_bm Y_bm x_bm y_bm xramp yramp fac mask_bm isn xf yf mask_bm
+clear ax bad D_thresh h H_bm grounded D h* H_bm H_b2 H_rema H_ramp H_bam Iramp source tidal X_bm Y_bm x_bm y_bm xramp yramp fac mask_bm isn xf yf mask_bm
 
 readme = 'created by flow_dem_extend.m. H_source 1=BedMachine v2, 2=REMA, 3=Bedmap2, 4=bamber, 5=ramp2_dem_osu91a200m ';
 if save_everything
    save('flow_dem_extend_1.mat','-v7.3') % takes 10 minutes to get here
-
+   disp 'saved 1'
 else
 
    %load('flow_dem_extend_1.mat')
@@ -361,7 +361,6 @@ axis xy
 
 disp 'done third round vel'  
 
-
 %% Fill remaining bits of missing data: 
 
 % Fill holes in each ice shelf name mask (because there wouldn't be another ice shelf within an ice shelf): 
@@ -394,7 +393,7 @@ axis off
 set(gca,'colorscale','log')
 caxis([1.5 4000])
 if save_everything
-   export_fig flow_extruded2.png -r600
+   export_fig flow_extruded3.png -r600
    close all
 end
 end
@@ -497,7 +496,7 @@ disp 'done thickness round 3'
 
 H = regionfill(tmpH,isnan(tmpH)); 
 H_source(H_source==0) = 7; 
-
+v_source(v_source==0) = 5; 
 
 %% Write 
 
@@ -530,7 +529,7 @@ if save_everything
    h5writeatt(fn,'/vx','units','m/yr')
    h5writeatt(fn,'/vx','Description','Ice velocity in the polar stereographic x direction.') 
 
-   h5create(fn,'/vy',size(vx),'Datatype','single')
+   h5create(fn,'/vy',size(vy),'Datatype','single')
    h5write(fn,'/vy',single(vy))
    h5writeatt(fn,'/vy','units','m/yr')
    h5writeatt(fn,'/vy','Description','Ice velocity in the polar stereographic y direction.') 
