@@ -22,6 +22,7 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 	4. Bamber - GEMB, 
 	5. RAMP2 - GEMB
 ![](extruded_thickness_source.png)
+* **`iceshelf_mask`**: Mask of 181 ice shelves from [Mouginot et al., 2017](https://doi.org/10.5067/AXE4121732AD), dilated by `iceshelf_mask_generator.m` and extruded by `flow_dem_extend.m`. ![](extruded_iceshelf_mask.png)
 
 ## Script Workflow 
 1. **`iceshelf_mask_generator.m`** uses Mouginot's iceshelves\_2008\_v2 outlines to create `iceshelf_mask.mat`, which contains a 240 m resolution mask on the ITS\_LIVE. This script also dilates the ice shelf mask by 100 km to account for any possible ice shelf growth. *This mask is not a final product!* It is modified by `flow_dem_extend.m` to create the `iceshelf_mask` in the `extruded_antarctica_*.h5` file. 
