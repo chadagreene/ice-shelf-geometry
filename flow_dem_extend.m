@@ -408,7 +408,7 @@ clear tmp* V vsg vv vvs iceshelves_* bad ch row col D* dx dy L M perim q xx yy
 
 %% Extrude Thickness Round 1 
 
-perim = bwperim(isfinite(H));
+perim = bwperim(imfill(H>10,'holes'));
 xseed = X(perim); 
 yseed = Y(perim); 
 [row,col] = find(perim); 
