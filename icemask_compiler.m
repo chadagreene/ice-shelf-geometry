@@ -453,6 +453,35 @@ readme = 'Adjusted ice grid created by ice_compiler.m';
 
 return
 
+%% Write 
+
+if save_everything
+   
+   % Switch the dimension order to match convention: 
+   ice = ipermute(ice,[2 1 3]); 
+
+   fn = ['/Users/cgreene/Documents/MATLAB/DEM_generation/itslive_coastmaskb_',datestr(now,'yyyy-mm-dd'),'.h5'];
+
+   h5create(fn,'/x',size(x),'Datatype','single')
+   h5write(fn,'/x',single(x))
+
+   h5create(fn,'/y',size(y),'Datatype','single')
+   h5write(fn,'/y',single(y))
+
+   h5create(fn,'/year',size(year),'Datatype','single')
+   h5write(fn,'/year',single(year))
+   
+   h5create(fn,'/ice',size(ice),'Datatype','int8')
+   h5write(fn,'/ice',int8(ice))
+   h5writeatt(fn,'/ice','units','boolean')
+   h5writeatt(fn,'/ice','Description','True where ice or continent was observed. False otherwise. Island extents remain constant and do not have evolving coastlines.')
+
+   h5writeatt(fn,'/','Description','A physically consistent composite of coastlines from Radarsat, MOA, MODIS (Fraser), and Sentinel 1a. Created by icemask_compiler.m and on GitHub in a repository named ice-shelf-geometry.')
+   h5writeatt(fn,'/','Author','Chad A. Greene, NASA/JPL') 
+   h5writeatt(fn,'/','Projection','EPSG:3031 South Polar Stereographic, standard parallel 71S') 
+
+end
+
 %%
 k=1;
 

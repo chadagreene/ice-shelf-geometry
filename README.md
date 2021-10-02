@@ -28,6 +28,12 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 1. **`iceshelf_mask_generator.m`** uses Mouginot's iceshelves\_2008\_v2 outlines to create `iceshelf_mask.mat`, which contains a 240 m resolution mask on the ITS\_LIVE. This script also dilates the ice shelf mask by 100 km to account for any possible ice shelf growth. *This mask is not a final product!* It is modified by `flow_dem_extend.m` to create the `iceshelf_mask` in the `extruded_antarctica_*.h5` file. 
 2. **`flow_dem_extend.m`** creates reference ice thickness and velocity grids that extend 100 km beyond the ~2008 extents of the ice sheet. Velocity is obtained by combining ITS\_LIVE and MEaSUREs v2 data as an error-weighted average of the two datasets, then velocities are extrapolated as constant values ~100 km beyond the calving front, in the direction of ice flow. Ice thickness is inverted from BedMachine v2 surface elevations (which are REMA - FAC). Where calving occurred before the ~2014? nominal date of BedMachine and BedMachine contains 0 thickness, surface elevations are taken from REMA, then Bedmap2, then Bamber DEM, then RAMP2, and from each of these non-BedMachine surface elevations, FAC from GEMB is subtracted.  
 3. **`extruded_antarctica_plotter.m`** creates the five maps shown above. 
+4. **`icemask_modis.m`** reads and interpolates Alex Fraser's annual modis coastline. Writes the resulting ice cube to a file called `icemask_modis.mat`. 
+5. **`icemask_s1a.m`** reads and interpolates Alex Fraser's annual ice mask that was generated from Sentinel 1a. Writes the resulting ice cube to a file called `icemask_s1a.mat`. 
+6. **`icemask_ramp2.m`** masks the its-live grid using the 1997 AMM-1 (`after_coast_continuous.shp`) and 2000 MMAM (`cst2000line.shp`) annual modis coastline. Writes the resulting ice cube to a file called `icemask_ramp2b.mat`. 
+7. **`icemask_moa.m`** masks the its-live grid using the 2004, 2009, and 2014 coastlines. Writes the resulting ice cube to a file called `icemask_moa.mat`.
+8. **`icemask_compiler.m`** Combines masks from individual sensors to create a composite, fully consistent ice cube. 
+9. **`icemask_analysis.m`** Analysis of coastal extent change. 
 
 ## Functions and other files 
 * **`inpolygon_map()`** is a _much_ faster version of `inpolygon` used by `iceshelf_mask_generator.m` to mask ice shelf boundaries. 
