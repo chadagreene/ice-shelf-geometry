@@ -448,8 +448,15 @@ plot_calving_ts(R,F,MOA,S,ice,year)
 %    ice(:,:,k) = tmp; 
 % end
 
+
+for k = 1:length(year)
+   
+   [cx{k},cy{k}] = mask2outline(x,y,ice(:,:,k)); 
+k
+end
+
 readme = 'Adjusted ice grid created by ice_compiler.m'; 
-%save('icemask_composite.mat','ice','x','y','year','readme','-v7.3')
+%save('icemask_composite.mat','ice','x','y','year','readme','cx','cy','-v7.3')
 
 return
 

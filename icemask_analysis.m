@@ -10,15 +10,16 @@ mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]);
 H = permute(h5read(fn,'/thickness'),[2 1]); 
 H_source = permute(h5read(fn,'/thickness_source'),[2 1]); 
 
+
 x = h5read(fn,'/x');
 y = h5read(fn,'/y'); 
 [X,Y] = meshgrid(x,y); 
 tidal = ismember(bedmachine_interp('mask',X,Y),[0 3]); 
 
 D = load('iceshelves_2008_v2.mat');
-%%
 
-%always_ice = all(ice,3); 
+%%
+always_ice = all(ice,3); 
 ever_ice = any(ice,3); 
 
 %%
@@ -71,24 +72,36 @@ Htr = trend(Hf,yrf);
 Hdiff = Hf(:,:,end) - Hf(:,:,1); 
 
 maskf = interp2(x,y,mask,Xf,Yf,'nearest'); 
+always_ice_f = interp2(x,y,always_ice,Xf,Yf,'nearest',0); 
 isf = isfinite(Htr);
 HMdiff = nan(1,181); 
 for k = 1:181
-   HMdiff(k) = sum(Hdiff(isf & maskf==k),'all')*917*1e-12*3000^2;
+   HMdiff(k) = sum(Hdiff(isf & always_ice_f & maskf==k),'all')*917*1e-12*3000^2;
 end
 
 %%
 
 figure
-plot(HMdiff,CMdiff,'.','color',rgb('black'))
-text(HMdiff,CMdiff,D.name,'horiz','center',...
+hp = plot(HMdiff,CMdiff,'.','color',rgb('black'));
+txt(1) = text(-1600,0,{'T';'H';'I';'N';'N';'I';'N';'G'},'color','w',...
+   'fontweight','bold','fontsize',12,'horiz','center');
+txt(2) = text(1600,0,{'T';'H';'I';'C';'K';'E';'N';'I';'N';'G'},'color','w',...
+   'fontweight','bold','fontsize',12,'horiz','center');
+txt(3) = text(0,-1600,{'RETREAT'},'color','w',...
+   'fontweight','bold','fontsize',12,'horiz','center');
+txt(4) = text(0,1600,{'ADVANCE'},'color','w',...
+   'fontweight','bold','fontsize',12,'horiz','center');
+uistack(hp,'top'); 
+
+ind = abs(HMdiff)>50 | abs(CMdiff)>50;
+text(HMdiff(ind),CMdiff(ind),D.name(ind),'horiz','center',...
    'vert','bottom','fontsize',7,'color',rgb('black'))
 box off
 axis tight
 axis equal
 axis([-1 1 -1 1]*1.01*max(abs(axis)))
-xlabel('due to thinning (Gt)','fontsize',8)
-ylabel('due to changing extents (Gt)','fontsize',8)
+xlabel('due to thinning or thickening (Gt)','fontsize',8)
+ylabel('due to retreat or advance (Gt)','fontsize',8)
 title 'total ice shelf mass change since 1997' 
 
 hold on
@@ -114,7 +127,7 @@ uistack(hp(2),'bottom')
 
 % export_fig calving_vs_thinning_masschange.png -r600 -p0.01 
 
-%%
+%% 
 
 figure
 plot(100*HMdiff./M(1,:),100*CMdiff./M(1,:),'.','color',rgb('dark red'))
@@ -207,3 +220,4 @@ ylabel 'total ice area change (km^2)'
 legend('Radarsat','MOA','Fraser Sentinel 1a','Fraser MODIS','composite','location','best')
 legend boxoff 
 title(D.name{iceshelf})
+
