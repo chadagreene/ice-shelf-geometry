@@ -8,7 +8,7 @@ load icemask_composite
 fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
 mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]); 
 H = permute(h5read(fn,'/thickness'),[2 1]); 
-H_source = permute(h5read(fn,'/thickness_source'),[2 1]); 
+%H_source = permute(h5read(fn,'/thickness_source'),[2 1]); 
 
 
 x = h5read(fn,'/x');
@@ -17,6 +17,8 @@ y = h5read(fn,'/y');
 tidal = ismember(bedmachine_interp('mask',X,Y),[0 3]); 
 
 D = load('iceshelves_2008_v2.mat');
+
+load '/Users/cgreene/Documents/MATLAB/DEM_generation/icemasks_adjusted.mat'
 
 %%
 always_ice = all(ice,3); 
@@ -28,18 +30,113 @@ mask2 = cube2rect(mask,tidal & ever_ice);
 ice2 = cube2rect(ice,tidal & ever_ice); 
 H2 = cube2rect(H,tidal & ever_ice); 
 
+F2 = cube2rect(F.ice,tidal & ever_ice); 
+MOA2 = cube2rect(MOA.ice,tidal & ever_ice); 
+S2 = cube2rect(S.ice,tidal & ever_ice); 
+R2 = cube2rect(R.ice,tidal & ever_ice); 
+
+
 A = NaN(24,181); 
 M = A; 
+
+A_F = NaN(19,181); 
+A_S = NaN(7,181); 
+A_R = NaN(2,181); 
+A_MOA = NaN(3,181); 
 for k = 1:181
    
    A(:,k) = sum(ice2(:,mask2==k),2)*240^2; 
    M(:,k) = sum(H2(:,mask2==k).*ice2(:,mask2==k),2)*917*1e-12*240^2;
    
+   A_F(:,k) = sum(F2(:,mask2==k),2)*240^2; 
+   A_S(:,k) = sum(S2(:,mask2==k),2)*240^2; 
+   A_R(:,k) = sum(R2(:,mask2==k),2)*240^2; 
+   A_MOA(:,k) = sum(MOA2(:,mask2==k),2)*240^2; 
 end
 
 Adiff = A(end,:)-A(1,:);
 CMdiff = M(end,:)-M(1,:);
 
+%%
+
+figure('pos',[14 500 500 310])
+
+for k = 1:181
+   if any(isfinite(A(:,k)))
+      clf
+      plot(R.yr+.75,A_R(:,k)/1000^2,'o','color',hex2rgb('ba495c'),'linewidth',1)
+      hold on
+      plot(MOA.yr+.2,A_MOA(:,k)/1000^2,'^','color',hex2rgb('8960b3'),'linewidth',1)
+      plot(F.years+.2,A_F(:,k)/1000^2,'s','color',hex2rgb('56ae6c'),'linewidth',1)
+      plot(S.yr+.2,A_S(:,k)/1000^2,'p','color',hex2rgb('b0913b'),'linewidth',1)
+      plot(year,A(:,k)/1000^2,'k-','linewidth',2) 
+      box off
+      axis tight
+      xlim([1997 2022])
+      title(D.name{k})
+      ylabel 'ice shelf area (km^2)'
+      legend('Radarsat','MOA','Fraser MODIS','Fraser Sentinel','composite','location','best') 
+      legend boxoff 
+
+      ax = gca; 
+      ax.YAxis.Exponent = 0;
+      ytickformat('%.0f');
+
+      export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_',D.name{k},'.png'],...
+         '-r600','-p0.01','-painters')
+   end
+end
+
+% All ice shelves: 
+clf
+plot(R.yr+.75,sum(A_R,2)/1000^2,'o','color',hex2rgb('ba495c'),'linewidth',1)
+hold on
+plot(MOA.yr+.2,sum(A_MOA,2)/1000^2,'^','color',hex2rgb('8960b3'),'linewidth',1)
+plot(F.years+.2,sum(A_F,2)/1000^2,'s','color',hex2rgb('56ae6c'),'linewidth',1)
+plot(S.yr+.2,sum(A_S,2)/1000^2,'p','color',hex2rgb('b0913b'),'linewidth',1)
+plot(year,sum(A,2)/1000^2,'k-','linewidth',2) 
+box off
+axis tight
+xlim([1997 2022])
+title 'all ice shelves'
+ylabel 'ice shelf area (km^2)'
+legend('Radarsat','MOA','Fraser MODIS','Fraser Sentinel','composite','location','best') 
+legend boxoff 
+
+ax = gca; 
+ax.YAxis.Exponent = 0;
+ytickformat('%.0f');
+
+export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_Antarctica.png'],...
+   '-r600','-p0.01','-painters')
+
+%% Make a single figure with all area time series on it
+
+Ad = A-A(1,:); 
+As = sum(Ad,2); 
+
+figure('pos',[30 30 685 881])
+hold on
+
+col = rand(181,3); 
+h = plot(year,Ad/1000^2); 
+for k = 1:181
+   h(k).Color = col(k,:); 
+   text(year(end),Ad(end,k)/1000^2,D.name{k},'fontsize',6,'color',col(k,:),'vert','middle')
+   
+end
+
+plot(year,As/1000^2,'k-','linewidth',2) 
+text(year(end),As(end)/1000^2,'Antarctica','fontsize',6,'fontweight','bold')
+axis tight
+ylabel 'ice shelf area change (km^2)' 
+
+ax = gca; 
+ax.YAxis.Exponent = 0;
+ytickformat('%.0f');
+
+% export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_change_timeseries_all.png'],...
+%    '-r600','-p0.01','-painters')
 %%
 
 figure
