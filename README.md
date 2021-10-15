@@ -32,12 +32,19 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 5. **`icemask_s1a.m`** reads and interpolates Alex Fraser's annual ice mask that was generated from Sentinel 1a. Writes the resulting ice cube to a file called `icemask_s1a.mat`. 
 6. **`icemask_ramp2.m`** masks the its-live grid using the 1997 AMM-1 (`after_coast_continuous.shp`) and 2000 MMAM (`cst2000line.shp`) annual modis coastline. Writes the resulting ice cube to a file called `icemask_ramp2b.mat`. 
 7. **`icemask_moa.m`** masks the its-live grid using the 2004, 2009, and 2014 coastlines. Writes the resulting ice cube to a file called `icemask_moa.mat`.
-8. **`icemask_compiler.m`** Combines masks from individual sensors to create a composite, fully consistent ice cube. 
-9. **`icemask_analysis.m`** Analysis of coastal extent change. 
+8. **`icemask_compiler.m`** Combines masks from individual sensors to create a composite, fully consistent ice cube. This script creates `icemask_composite.mat`, which is used in the ISSM experiment on grounding line flux response to observed calving. 
+9. **`icemask_analysis.m`** Analysis of coastal extent change.
+10. **`icemask_animator.m`** Creates regional gifs and still maps of the observed calving tha occurred from 1997-2021.  
+11. **`icemask_buffer.m`** creates an "ice cube" of masks that buffer inland in small increments, 1% of each ice shelf's area at a time. This script creates `icemask_buffered.mat`, which is used in the hypothetical calving ISSM experiment. 
+12. **`iceshelf_thickness_cube_generator.m`** creates thickness cubes on the 240 ITS_LIVE velocity grid, annually for for the observed period 1992-2018, and every two years for the next 50 years, if trends from the past quarter century continue. (Trends from the pole hole only covered by CryoSat-2 are calculated for 2010-2018). This script creates `iceshelf_thickness_cube_1992-2018.mat` and `iceshelf_thickness_cube_future.mat`, which are for the ISSM past and "future" thickness-change experiments.  
+13. **`issm_calving_melt_setup.m`** sets up the geometry to initialize the ISSM experiment. This script creates `issm_calving_melt_setup.mat`. 
+
 
 ## Functions and other files 
 * **`inpolygon_map()`** is a _much_ faster version of `inpolygon` used by `iceshelf_mask_generator.m` to mask ice shelf boundaries. 
 * **iceshelves\_2008\_v2\_names.csv** contains the names and numerical indices of all 181 ice shelves in the extended ice shelf mask. 
+* **README_issm_model_setup_files.txt** Notes on the ISSM experiment setup with descriptions of the variables and how they were created. 
+* **reference_coastline_logbook.xls** a reference to help me keep straight which indices of which ice cube masks correspond to which years. 
 
 
 
