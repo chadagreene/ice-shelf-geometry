@@ -70,6 +70,7 @@ grounded = ismember(mask_bm,[1 2 4]);
 
 % Load REMA data: 
 h_rema = wgs2gl04c(X_bm,Y_bm,rema_interp(X_bm,Y_bm,'res',200));
+h_rema(bwdist(~isfinite(h_rema))*.5<5) = NaN; % eliminates everything within 5 km of NaNs because of weird icebergs at the edge of Ronne 
 
 % Load Bedmap2 data: 
 h_b2 = bedmap2_interp(X_bm,Y_bm,'surface'); 
@@ -78,14 +79,14 @@ h_b2(isn) = bedmap2_interp(X_bm(isn),Y_bm(isn),'surface','nearest');
 
 % load bamber: 
 h_bam = wgs2gl04c(X_bm,Y_bm,bamberdem_interp(X_bm,Y_bm));
-h_bam(bwdist(~isfinite(h_bam))*.5<15) = NaN; % Eliminates 15 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
+h_bam(bwdist(~isfinite(h_bam))*.5<10) = NaN; % Eliminates 10 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
 
 % RAMP2:
 [Iramp,xramp,yramp] = geoimread('ramp2_dem_osu91a200m.tif'); % The OSU version of the file is referenced to the geoid whereas the RAM2_DEM.tif is referenced to wgs84. Use OSU.  
 Iramp = double(Iramp); 
 Iramp(Iramp==0) = NaN; % Convert zeros to NaN so interpolation won't produce thin ice shelf edges.  
 h_ramp = interp2(xramp,yramp,Iramp,X_bm,Y_bm); 
-h_ramp(bwdist(~isfinite(h_ramp))*.5<15) = NaN;  % Eliminates 15 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
+h_ramp(bwdist(~isfinite(h_ramp))*.5<10) = NaN;  % Eliminates 10 km perimeter b/c drooping ice sheet edges in Bamber and RAMP dems
 
 %% Remove firn air content 
 % (BedMachine already has FAC removed) 
@@ -154,7 +155,7 @@ clear ax bad D_thresh h H_bm grounded D h* H_bm H_b2 H_rema H_ramp H_bam Iramp s
 
 readme = 'created by flow_dem_extend.m. H_source 1=BedMachine v2, 2=REMA, 3=Bedmap2, 4=bamber, 5=ramp2_dem_osu91a200m ';
 if save_everything
-   save('flow_dem_extend_1.mat','-v7.3') % takes 10 minutes to get here
+   save('/Users/cgreene/Documents/MATLAB/DEM_generation/flow_dem_extend_1.mat','-v7.3') % takes 10 minutes to get here
    disp 'saved 1'
 else
 
@@ -401,14 +402,14 @@ end
 %% 
 
 if save_everything
- save('flow_dem_extend_2.mat','vx','vy','iceshelves','v_source','x','y','-v7.3')
+ save('/Users/cgreene/Documents/MATLAB/DEM_generation/flow_dem_extend_2.mat','vx','vy','iceshelves','v_source','x','y','-v7.3')
 end
 
 clear tmp* V vsg vv vvs iceshelves_* bad ch row col D* dx dy L M perim q xx yy
 
 %% Extrude Thickness Round 1 
 
-perim = bwperim(imfill(H>10,'holes'));
+perim = bwperim(imfill(H>=10,'holes'));
 xseed = X(perim); 
 yseed = Y(perim); 
 [row,col] = find(perim); 
@@ -440,9 +441,14 @@ tmpH(isf) = hg(isf);
 
 disp 'done thickness round 1' 
 
+if save_everything
+   clear M V XY xx yy hh isf hg
+   save('/Users/cgreene/Documents/MATLAB/DEM_generation/test.mat','-v7.3')
+end
+
 %% Extrude Thickness Round 2
 
-XY = stream2(x_r,y_r,Hvx_r,Hvy_r,xseed,yseed,[0.1 6000]);
+XY = stream2(x_r,y_r,Hvx_r,Hvy_r,xseed,yseed,[0.1 5500]);
 V = XY; 
 for k = 1:length(V) 
    V{k}(:,1) = Hf(row(k),col(k)); 
@@ -466,9 +472,14 @@ tmpH(isf) = hg(isf);
 
 disp 'done thickness round 2' 
 
+if save_everything
+   clear M V XY xx yy hh isf hg
+   save('/Users/cgreene/Documents/MATLAB/DEM_generation/test.mat','-v7.3')
+end
+
 %% Extrude Thickness Round 3
 
-XY = stream2(x_r,y_r,Hvx_r,Hvy_r,xseed,yseed,[0.02 6000]);
+XY = stream2(x_r,y_r,Hvx_r,Hvy_r,xseed,yseed,[0.02 5500]);
 V = XY; 
 for k = 1:length(V) 
    V{k}(:,1) = Hf(row(k),col(k)); 
@@ -492,7 +503,11 @@ tmpH(isf) = hg(isf);
 
 disp 'done thickness round 3' 
 
-%% 
+% if save_everything
+%    clear M V XY xx yy hh isf hg
+%    save('/Users/cgreene/Documents/MATLAB/DEM_generation/test.mat','-v7.3')
+% end
+%%
 
 H = regionfill(tmpH,isnan(tmpH)); 
 H_source(H_source==0) = 7; 

@@ -9,9 +9,8 @@
 
 load ('icemask_composite.mat')
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-15.h5'; 
 mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]); 
-%H = permute(h5read(fn,'/thickness'),[2 1]); 
 
 [X,Y] = meshgrid(x,y); 
 
@@ -25,7 +24,6 @@ clear ice X Y
 %% Buffer in successive increments of distance from coast
 
 % Range of percent values: 
-% pct = [0:20 22:2:80 81:100]; 
 pct = 0:100; 
 
 % Number of pixels in each ice shelf: 

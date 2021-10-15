@@ -18,7 +18,7 @@ x = F.x;
 y = F.y; 
 [X,Y] = meshgrid(x,y); 
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-15.h5'; 
 mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]); 
 H = permute(h5read(fn,'/thickness'),[2 1]); 
 %H_source = permute(h5read(fn,'/thickness_source'),[2 1]); 

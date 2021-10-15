@@ -8,7 +8,7 @@
 
 load icemask_composite
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-15.h5'; 
 vx = permute(h5read(fn,'/vx'),[2 1]); 
 vy = permute(h5read(fn,'/vy'),[2 1]); 
 
