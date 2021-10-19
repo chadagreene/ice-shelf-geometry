@@ -1,6 +1,7 @@
 
 % This script makes a simple cartoon to show how we use 2D interpolation 
 % to get a calving flux estimate of a gridded dataset. 
+% Chad A. Greene, NASA JPL, October 2021. 
 
 %% Preferences: 
 
