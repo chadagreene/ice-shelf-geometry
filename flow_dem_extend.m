@@ -1,6 +1,6 @@
 
 % This script creates complete, gridded thickness and velocity datasets, and extends
-% them 100 km beyond present day coastlines. The final product is on the 
+% them 100 km beyond present day coastlines. The final product is on devon. 
 
 save_everything = true; 
 %% Blend ITS_LIVE and Measures (Rignot) velocities: 
@@ -55,9 +55,16 @@ v_source(~indi & indm) = 1; % ITS_LIVE
 v_source(indi & ~indm) = 2; % Measures v2
 v_source(~indi & ~indm) = 3; % Blend of ITS_LIVE and MEasures 
 
-clear indi indm vxi vxm vyi vym wi wm bad
+% Fill any nan holes in the velocity field, but don't fill the ocean: 
+L = bwlabel(isnan(vx)); % Label the nan regions, and the ocean will be L=1.  
+vx = regionfill(vx,L>1); 
+vy = regionfill(vy,L>1);
+v_source(L>1) = 4; % interpolated
+v = hypot(vx,vy); 
 
-%% Build a referece surface: 
+clear indi indm vxi vxm vyi vym wi wm bad L
+
+%% Build a reference surface: 
 % Note that BedMachine's surface is not the surface you stand on--it is the
 % surface that would exist if you subtracted all FAC from the surface you stand on. In
 % contrast, Bedmap2's surface is the surface you stand on. 
@@ -200,12 +207,14 @@ Hv_r = hypot(Hvx_r,Hvy_r);
 dx = interp2(x_r,y_r,Hvx_r./Hv_r,X,Y); 
 dy = interp2(x_r,y_r,Hvy_r./Hv_r,X,Y); 
 
-figure
-imagescn(x_r,y_r,hypot(Hvx_r,Hvy_r))
-hold on
-bedmachine
-q = quiversc(x_r,y_r,Hvx_r,Hvy_r,'k','density',300); 
-q.AutoScaleFactor = 3;
+if false
+   figure
+   imagescn(x_r,y_r,hypot(Hvx_r,Hvy_r))
+   hold on
+   bedmachine
+   q = quiversc(x_r,y_r,Hvx_r,Hvy_r,'k','density',300); 
+   q.AutoScaleFactor = 3;
+end
 
 %clear H_r vx_r vy_r 
 
@@ -220,13 +229,6 @@ q.AutoScaleFactor = 3;
 % limitations on my laptop. Ideally we'd do like a million steps in increments 
 % of 0.01 or something, but my lil laptop just can't handle it, so this'll
 % have to do. 
-
-% Fill any nan holes in the velocity field, but don't fill the ocean: 
-L = bwlabel(isnan(vx)); % Label the nan regions, and the ocean will be L=1.  
-vx = regionfill(vx,L>1); 
-vy = regionfill(vy,L>1);
-v_source(L>1) = 4; % interpolated
-v = hypot(vx,vy); 
 
 % Use the perimeter of the velocity measurements as the seed locations: 
 perim = bwperim(isfinite(vx));
@@ -524,7 +526,6 @@ if save_everything
    vx = ipermute(vx,[2 1]); 
    vy = ipermute(vy,[2 1]); 
    v_source = ipermute(v_source,[2 1]); 
-
 
    fn = ['extruded_antarctica_',datestr(now,'yyyy-mm-dd'),'.h5'];
 

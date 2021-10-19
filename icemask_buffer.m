@@ -9,7 +9,7 @@
 
 load ('icemask_composite.mat')
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-15.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-18.h5'; 
 mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]); 
 
 [X,Y] = meshgrid(x,y); 
@@ -72,7 +72,7 @@ readme = 'maximum ice extents buffered from the coast in 1 percent increments of
 % save('/Users/cgreene/Documents/MATLAB/DEM_generation/icemask_buffered.mat','x','y','pct','ice','readme')
 
 %%
-% Colors for each year's coastlie
+% Colors for each year's coastline
 col = mat2rgb(year,parula); 
 
 figure

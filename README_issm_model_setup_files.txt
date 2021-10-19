@@ -9,7 +9,7 @@ The four experiments:
 4. Hypothetical future thinning if 1992-2018 rates continue: 50 years of future thinning from 2018, in 2 year increments in iceshelf_thickness_cube_future.mat. 
 
 Notes: 
-* Sorry, in some of the files below I've named the variable `thickness`, but elsewhere it's `H`. It's the same variable, sorry for switching it up. 
+* In some of the files below I've named the variable `thickness`, but elsewhere it's `H`. It's the same variable, sorry for switching it up. 
 * The uint16 data uses a fill value of 32767 to indicate ocean. 
 
 FILES
@@ -17,7 +17,7 @@ FILES
 issm_calving_melt_setup.mat 
 * Use this to set up the ISSM model. 
 * I used rho_ice=917 and rho_seawater=1027 for hydrostatic calculations. 
-* Fill Value 32767.
+* NaN-out everything that is not ever_ice. 
 * created by issm_calving_melt_setup.m
 * Variables: 
 - bed from 'BedMachineAntarctica-2021-03-03.nc'
