@@ -9,12 +9,9 @@
 
 load icemask_composite.mat
 
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-15.h5'; 
+fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-10-18.h5'; 
 mask = permute(h5read(fn,'/iceshelf_mask'),[2 1]); 
 H = permute(h5read(fn,'/thickness'),[2 1]); 
-
-fn = '/Users/cgreene/Documents/MATLAB/DEM_generation/extruded_antarctica_2021-09-02.h5'; 
-
 vx = permute(h5read(fn,'/vx'),[2 1]); 
 vy = permute(h5read(fn,'/vy'),[2 1]); 
 
@@ -57,7 +54,6 @@ CR_ss(182) = sum(Mdot_ss2(:,mask2==0));
 CR_ss(183) = sum(Mdot_ss2);
 CR_ss(183)
 
-
 figure
 bar((1:182)-.5,CR_ss(1:182))
 set(gca,'xtick',.5:181.5,'xticklabel',D.name)
@@ -98,20 +94,15 @@ mask2 = cube2rect(mask,action_ice);
 % Using a negative sign here so positive is calving (to match steady state
 % massrate) 
 M2 = double(ice2).*IceMass2;
-%dM2 = -diff(M2); 
 
-%dM = nan(23,183); 
 M_anom = nan(24,183); 
 for k = 1:181
-   %dM(:,k) = sum(dM2(:,mask2==k),2); 
    M_anom(:,k) = sum(M2(:,mask2==k),2); 
 end
-% dM(:,182) = sum(dM2(:,mask2==0),2); 
-% dM(:,183) = sum(dM2,2); 
 M_anom(:,182) = sum(M2(:,mask2==0),2); 
 M_anom(:,183) = sum(M2,2); 
 
-dM = -diff(M_anom); 
+dM = diff(M_anom); 
 
 
 figure
