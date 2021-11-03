@@ -1,3 +1,8 @@
+% This script creates thickness cubes on the 240 ITS_LIVE velocity grid, 
+% * annually for for the observed period 1992-2018, and 
+% * every two years for the next 50 years, if trends from the past quarter century continue. 
+
+% Chad A. Greene, NASA Jet Propulsion Laboratory, October 2021. 
 
 load('icemask_composite.mat')
 always_ice = imfill(all(ice(:,:,year<=2018),3),8,'holes'); % Take the mean ice mask over the observed period. Taking the sum is faster than mean.  

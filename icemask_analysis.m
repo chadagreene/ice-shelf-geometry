@@ -178,6 +178,9 @@ end
 
 %%
 
+[xc,yc] = polycenter(D.x,D.y);
+[latc,lonc] = ps2ll(xc,yc);
+
 figure
 hp = plot(HMdiff,CMdiff,'.','color',rgb('black'));
 txt(1) = text(-1600,0,{'T';'H';'I';'N';'N';'I';'N';'G'},'color','w',...
