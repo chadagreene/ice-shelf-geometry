@@ -256,6 +256,9 @@ A_hi = As(:,Atmp>0);
 h_lo = area(year,A_lo,'edgecolor','none');
 h_hi = area(year,A_hi,'edgecolor','none');
 
+A_loc = [zeros(25,1) cumsum(A_lo,2)];
+A_hic = [ zeros(25,1) cumsum(A_hi,2)];
+
 name_2 = D.name(ind); 
 name_lo = name_2(Atmp<0); 
 name_lo = flipud(name_lo); 
@@ -299,16 +302,57 @@ box off
 axis tight
 set(gca,'yaxislocation','left')
 
-plot(year,A(:,end),'color',0.8*[1 1 1],'linewidth',2)
-plot(year(end),A(end,end),'.','linewidth',2,'color',0.8*[1 1 1],'markersize',8)
-plot(year(1),0,'.','linewidth',2,'color',0.8*[1 1 1],'markersize',8)
-plot(year,A(:,end),'color',hex2rgb('000000'),'linewidth',1.5)
-plot(year(end),A(end,end),'.','linewidth',1.5,'color',hex2rgb('000000'),'markersize',7)
-plot(year(1),0,'.','linewidth',1.5,'color',hex2rgb('000000'),'markersize',7)
+
+colorcase = 63; 
+switch colorcase 
+   case 0
+      linecol = [0 0 0]; % color of the Antarctica line
+      shadowcol = .8*[1 1 1]; 
+   case 3
+      linecol = [1 1 1]; % color of the Antarctica line
+      shadowcol = 0*[1 1 1]; 
+
+   case 5
+      shadowcol = [0 0 0];
+      linecol = hex2rgb('88d895'); 
+   case 6
+      shadowcol = [0 0 0];
+      linecol = hex2rgb('daba63'); 
+   case 62
+      shadowcol = [0 0 0];
+      linecol = hex2rgb('f7e78f'); 
+   case 63
+      shadowcol = [0 0 0];
+      linecol = hex2rgb('f0d079'); 
+   case 7
+      linecol = rgb('gold');
+      shadowcol = [0 0 0]; 
+   case 8
+      shadowcol = [0 0 0];
+      linecol = hex2rgb('bbe19d'); 
+
+      
+      
+   otherwise
+      error 'unknown colorcase'
+end
+
+
+plot(year,A(:,end),'color',shadowcol,'linewidth',2)
+plot(year(end),A(end,end),'.','linewidth',2,'color',shadowcol,'markersize',8)
+plot(year(1),0,'.','linewidth',2,'color',shadowcol,'markersize',8)
+plot(year,A(:,end),'color',linecol,'linewidth',1.5)
+plot(year(end),A(end,end),'.','linewidth',1.5,'color',linecol,'markersize',7)
+plot(year(1),0,'.','linewidth',1.5,'color',linecol,'markersize',7)
 %text(year(21),A(21,end),'Antarctica','fontsize',6,'fontweight','bold','horiz','center','vert','top');
 %text(year(17),A(17,end),'Antarctica','fontsize',6,'fontweight','bold','horiz','center','vert','top');
 %text(year(16),A(16,end),'Antarctica','fontsize',6,'fontweight','bold','horiz','center','vert','bot');
-text(year(end),A(end,end),'Antarctica ','fontsize',6,'fontweight','bold','horiz','right','vert','mid','color',hex2rgb('000000'));
+%text(year(end),A(end,end),'Antarctica ','fontsize',6,'fontweight','bold','horiz','right','vert','mid','color',linecol);
+
+% text(year(end),A(end,end),'Antarctica ','fontname','Helvetica Neue','fontsize',7,'fontweight','bold','horiz','right','vert','mid','color',linecol);
+% text(year(end),A(end,end),'Antarctica ','fontname','HelveticaNeue LT 75 BdOutline','fontweight','bold','fontsize',7,'horiz','right','vert','mid','color',shadowcol);
+drawnow
+textborder(year(end),A(end,end),'Antarctica ',linecol,shadowcol,'fontname','Helvetica','fontsize',6.5,'fontweight','bold','horiz','right','vert','mid')
 
 axcol = 0.5*[1 1 1]; 
 xl = xlim; 
@@ -323,7 +367,7 @@ set(gca,'ycolor','none','xcolor',axcol)
 
 % export_fig cumulative_area_change.png -r600 -painters -p0.01
 %exportgraphics(gca,'cumulative_area_change.pdf')
-
+% export_fig test.png -r600 -painters -p0.01
 %% (OLD) Time series of past and future calving 
 % 
 % col = hex2rgb({'#50b47b';
@@ -418,3 +462,69 @@ set(gca,'ycolor','none','xcolor',axcol)
 % axis([1962 max(extrapyr) -18 1.9])
 % % export_fig Ross_FRIS_calving.png -r500 -p0.01 -painters
 % % export_fig Ross_FRIS_calving_annotated.jpg -r600 -p0.01 -painters
+
+
+%% Subfunctions 
+
+function h = textborder(x, y, string, text_color, border_color, varargin)
+%TEXTBORDER Display text with border.
+%   TEXTBORDER(X, Y, STRING)
+%   Creates text on the current figure with a one-pixel border around it.
+%   The default colors are white text on a black border, which provides
+%   high contrast in most situations.
+%   
+%   TEXTBORDER(X, Y, STRING, TEXT_COLOR, BORDER_COLOR)
+%   Optional TEXT_COLOR and BORDER_COLOR specify the colors to be used.
+%   
+%   Optional properties for the native TEXT function (such as 'FontSize')
+%   can be supplied after all the other parameters.
+%   Since usually the units of the parent axes are not pixels, resizing it
+%   may subtly change the border of the text out of position. Either set
+%   the right size for the figure before calling TEXTBORDER, or always
+%   redraw the figure after resizing it.
+%   
+%   Author: João F. Henriques, April 2010
+% Heavily edited by Chad Greene for FOP tools, November 2015, including the
+% following changes: 
+%   * Now prints 8 background texts rather than the previous 4. 
+%   * Now returns object handles 
+%   * Can now handle multiple text inputs
+%   * Now prints in data units rather than data units, converting to pixels, moving, 
+%       then converting back to data units. This is b/c changing units was VERY slow
+%       on R2014b for some reason.  Took about 35 seconds before, which is absurd.  
+
+
+
+if nargin < 5, border_color = 'k'; end  %default: black border
+if nargin < 4, text_color = 'w'; end  %default: white text
+
+pos = getpixelposition(gca); 
+xl = get(gca,'xlim'); 
+xperpx = diff(xl)/pos(3); 
+yl = get(gca,'xlim'); 
+yperpx = diff(yl)/pos(4); 
+
+% border around the text, composed of 8 text objects  
+offsets = [xperpx yperpx].*[[0 -1; -1 0; 0 1; 1 0] ; 0.71*[ 1 1; -1 1; -1 -1; 1 -1]];
+
+% Initialize counters for background and main text:  
+cbg = 1; 
+    
+for n = 1:length(x)     
+	for k = 1:8
+		h.bg(cbg) = text(x(n)+offsets(k,1)/10, y(n)+offsets(k,2)/4, string, 'Color',border_color, varargin{:});
+		
+        % Increment background counter: 
+        cbg = cbg+1; 
+   end
+
+end
+
+% the actual text inside the border
+h.t = text(x, y, string, 'Color',text_color, varargin{:});
+
+if nargout==0
+    clear h;
+end
+
+end
