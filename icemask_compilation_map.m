@@ -27,7 +27,7 @@ A = area(P);
 
 xc(A<229092155) = nan; 
 
-xc([28 88 91 165 166 65 69 78 59 116 98 25 68 23 24 15 46 51 117 154 148 179]) = nan; % names we don't care about
+xc([28 88 91 165 166 65 69 78 59 116 98 25 68 23 24 15 46 51 117 154 148 179 111 99 41 20 104]) = nan; % names we don't care about
 
 D.name{84} = 'Larsen A'; 
 D.name{85} = 'Larsen B'; 
@@ -39,8 +39,50 @@ yc(48) = 945473;
 
 %% Make a map: 
 
+cmp = 'tropical'; 
+switch cmp 
+   case 'pride'
+      load('pride.mat')
+
+      lch_pride = colorspace('rgb->lch',pride);
+
+      tmp = linspace(18,95,256); 
+      lch_pride(1:256,1) = tmp; 
+      lch_pride(257:end,1) = tmp(255:-1:1); 
+
+      mm = movmean(lch_pride(:,1),75); 
+      lch_pride(256-100:256+100,1) = mm(256-100:256+100); 
+
+      lch_pride(:,2) = movmean(lch_pride(:,2),75)+5;
+
+      cm = colorspace('lch->rgb',lch_pride); 
+      
+   case 'neon'
+      load neon
+      cm = flipud(neon); 
+      
+   case 'tropical'
+      load tropical
+      cm = flipud(tropical);
+      
+   case 'pepper'
+      load pepper
+      cm = flipud(pepper); 
+      
+   case 'parula'
+      lch_parula = colorspace('rgb->lch',parula(256));
+      lch_parula(:,1) = linspace(20,90,256); 
+      cm=flipud(colorspace('lch->rgb',lch_parula)); 
+      
+   case 'chroma'
+      load chroma
+      cm = flipud(chroma(50:230,:)); 
+end
+
+
+
 % Colors for each year's coastlie
-col = mat2rgb(year,turbo(276)); 
+col = mat2rgb(year,cm); 
 
 shelf = {'larsens','fris','amery',...
    'wilkins','center','shackleton',...
@@ -55,6 +97,13 @@ for kk = [1 2 3 4 6 7 8 9]
    subsubplot(3,3,kk,'vpad',pad,'hpad',pad); 
    
    hold on
+   % Plot an undercarraige: 
+   if ismember(kk,[2 3 8 9])
+   for k = 24
+      h(k) = plot(cx{k},cy{k},'w','linewidth',0.6); 
+   end
+   end
+
    for k = 1:24
       h(k) = plot(cx{k},cy{k},'color',col(k,:),'linewidth',0.3); 
    end
@@ -67,7 +116,8 @@ for kk = [1 2 3 4 6 7 8 9]
       
       case 'amery'
          %axis([1907706.00    2299893.00     543775.00     862110.00])
-         axis([1924094.26    2289209.67     535365.14     831726.35])
+         %axis([1924094.26    2289209.67     535365.14     831726.35])
+         axis([1946677.39    2285375.92     547598.37     822517.21])
          [hsb(1),hsb(2)] = scalebarps('fontsize',5,'location','sw'); 
 
       case 'harald'
@@ -113,8 +163,9 @@ for kk = [1 2 3 4 6 7 8 9]
          [hsb(1),hsb(2)] = scalebarps('fontsize',5,'location','sw','color','w'); 
 
       case 'ross'
-         axis([-507558      507551    -1796747     -972790])
-         %axis([-501528.81     277001.60   -1590125.01    -958197.22]) 
+         %axis([-507558      507551    -1796747     -972790])
+         axis([-506341.08     332780.77   -1548399.94    -867290.50])
+         
          [hsb(1),hsb(2)] = scalebarps('fontsize',5,'location','sw','color','w'); 
 
       case 'oates'
@@ -148,16 +199,21 @@ for kk = [1 2 3 4 6 7 8 9]
    xl(kk,:) = xlim; 
    yl(kk,:) = ylim; 
    
-   q = itslive_quiver; 
-   q.Color = hex2rgb('d1b057'); 
-   q.LineWidth = 0.2; 
-   uistack(q,'bottom')
+   q(kk) = itslive_quiver; 
+   q(kk).LineWidth = 0.2; 
+   uistack(q(kk),'bottom')
    
    m(kk) = modismoaps('contrast','w','year',2004); 
+%    lt=text(xc,yc,D.name,'horiz','center','vert','middle',...
+%       'fontsize',5,'clipping','on','color',hex2rgb('af8b69'),'fontangle','italic'); 
+%    lt=text(xc,yc,D.name,'horiz','center','vert','middle',...
+%       'fontsize',5,'clipping','on','color',hex2rgb('4d7798'),'fontangle','italic'); 
    lt=text(xc,yc,D.name,'horiz','center','vert','middle',...
-      'fontsize',5,'clipping','on','color',0.3*[1 1 1],'fontangle','italic'); 
+      'fontsize',5,'clipping','on','color',hex2rgb('c26a4b'),'fontangle','italic');    
+   
    lt(121).VerticalAlignment='bottom'; %pine island
    lt(153).VerticalAlignment='bottom'; % thwaites
+   lt(153).HorizontalAlignment='left'; % thwaites
    lt(113).VerticalAlignment='bottom'; % ninnis
    lt(105).VerticalAlignment='bottom'; % mertz
    
@@ -170,58 +226,81 @@ end
 
 ax(5) = subsubplot(3,3,5,'vpad',pad,'hpad',pad);
 hold on
+
+% % Plot an undercarraige: 
+% for k = 1:24
+%    h(k) = plot(cx{k},cy{k},'w','linewidth',0.8); 
+% end
+
 for k = 1:24
-   h(k) = plot(cx{k},cy{k},'color',col(k,:),'linewidth',0.3); 
+   h(k) = plot(cx{k},cy{k},'color',col(k,:),'linewidth',0.2); 
 end
 axis tight
 hb = bedmachine('gl','color',.5*[1 1 1],'LineWidth',0.25); 
 uistack(hb,'bottom')
 axis off 
 
+%insetcol = hex2rgb('#9e7da5'); 
+insetcol = hex2rgb('dd99c1'); 
 for kk = [1 2 3 4 6 7 8 9]
    
    plot([xl(kk,1) xl(kk,2) xl(kk,2) xl(kk,1) xl(kk,1)],...
       [yl(kk,1) yl(kk,1) yl(kk,2) yl(kk,2) yl(kk,1)],...
-      'color',.5*[1 1 1],'linewidth',0.2)
+      'color',insetcol,'linewidth',0.2)
    
       switch letters{kk}
          case ' a '
-            text(xl(kk,2),yl(kk,2),letters{kk},'fontsize',5,'color',.5*[1 1 1],...
+            text(xl(kk,2),yl(kk,2),letters{kk},'fontsize',5,'color',insetcol,...
                'horiz','right','vert','top')
          case {' b ',' i ',' f '}
-            text(xl(kk,1),yl(kk,2),letters{kk},'fontsize',5,'color',.5*[1 1 1],...
+            text(xl(kk,1),yl(kk,2),letters{kk},'fontsize',5,'color',insetcol,...
                'horiz','left','vert','top')
          case {' g ',' h '}
-            text(xl(kk,1),yl(kk,1),letters{kk},'fontsize',5,'color',.5*[1 1 1],...
+            text(xl(kk,1),yl(kk,1),letters{kk},'fontsize',5,'color',insetcol,...
                'horiz','left','vert','bot')
          case ' d '
-            text(xl(kk,1),yl(kk,1),letters{kk},'fontsize',5,'color',.5*[1 1 1],...
+            text(xl(kk,1),yl(kk,1),letters{kk},'fontsize',5,'color',insetcol,...
                'horiz','right','vert','bot')
          case ' c '
-            text(xl(kk,2),yl(kk,2),letters{kk},'fontsize',5,'color',.5*[1 1 1],...
+            text(xl(kk,2),yl(kk,2),letters{kk},'fontsize',5,'color',insetcol,...
                'horiz','left','vert','top')
             
       end
 end
 axis tight
 
+tcb = textcolorbar(unique(floor(year)),'colormap',cm,'location','center','fontsize',5); 
 
-tcb = textcolorbar(unique(floor(year)),'colormap',turbo(256),'location','center','fontsize',5); 
-
-tcb2 = text(825169+240e3,1394090,tcb.String(1:11,:),'fontsize',5,'vert','top','horiz','right');
-tcb3 = text(825169+240e3,1394090,tcb.String(12:end,:),'fontsize',5,'vert','top','horiz','left');
+tcb2 = text(825169+190e3,1394090,tcb.String(1:11,:),'fontsize',5,'vert','top','horiz','right');
+tcb3 = text(825169+190e3,1394090,tcb.String(12:end,:),'fontsize',5,'vert','top','horiz','left');
 delete(tcb)
 
+
+S = shaperead('/Users/cgreene/Downloads/FlowLines_InteriorSeeds_NoPH_FILLED/FlowLines_InteriorSeeds_NoPH_FILLED.shp');
+
+q(5) = plot([S.X],[S.Y],'color','k','linewidth',0.2); 
+% q = itslive_quiver('density',150); 
+% q.Color = hex2rgb('77c1be'); 
+% q.LineWidth = 0.2; 
+% q.AutoScaleFactor=4; 
+uistack(q(5),'bottom')
+   
 m(5) = modismoaps('contrast','w','year',2004); 
 set(gcf,'color','k') 
 
-% export_fig test2.png -r600 -p0.005
+% Flowline and vector color: 
+for kk=1:9;q(kk).Color(1:3)=hex2rgb('69b1e2'); end
+for kk=1:9;q(kk).Color(4) = 0.5; end
+
+%export_fig coastal_change_maps.jpg -r600 -painters -p0.005
+%export_fig coastal_change_maps_1200dpi.jpg -r1200 -painters -p0.005
+
 %% * * * * * * SUBFUNCTIONS * * * * * * 
 
 function RGB = mat2rgb(val,cmap,limits)
 % 
 % 
-% Chad Greene wrote this, July 2016. 
+% Chad Greene wrote this, July ç2016. 
 
 if nargin==2
    limits = [min(val) max(val)]; 
