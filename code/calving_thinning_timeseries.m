@@ -29,6 +29,9 @@ round(ronne_mass_per_area)
 pv = polyfit(diff(A_calving(:,132)),diff(M_calving(:,132)),1);
 text(-8,polyval(pv,-8),[' ',num2str(round(ronne_mass_per_area)),' Gt per thousand km^2'],'fontsize',6)
 
+plot(-4.32,polyval(pv,-4.32),'k+')
+text(-4.32,polyval(pv,-4.32),' Iceberg A76 ','vert','top','horiz','left','fontsize',6); 
+
 % export_fig ronne_area_to_mass.png -pdf -r600 -painters
 
 %% Add the 2021 Ronne calving to the time series: 
