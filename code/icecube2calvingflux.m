@@ -3,6 +3,8 @@
 % 
 % Creates calving_flux_timeseries.mat
 % 
+% This script takes about 15 minutes to run on my laptop. 
+% 
 % Chad Greene October 2021. 
 % NASA Jet Propulsion Laboratory. 
 
@@ -163,21 +165,23 @@ TotalMassChange = sum(IceMass(ice(:,:,end)),'all') - sum(IceMass(ice(:,:,1)),'al
 
 %% Map of steady state calving rates
 
-warning off
-for k = 1:181
-   P(k) = polyshape(D.x{k},D.y{k}); 
-end
+if false 
+   warning off
+   for k = 1:181
+      P(k) = polyshape(D.x{k},D.y{k}); 
+   end
 
-col = mat2rgb(CF_ss(1:181),cmocean('amp')); 
-figure
-hold on
-p = plot(P,'edgecolor','none','facealpha',0.8); 
-for k = 1:181
-   p(k).FaceColor = col(k,:); 
-end
+   col = mat2rgb(CF_ss(1:181),cmocean('amp')); 
+   figure
+   hold on
+   p = plot(P,'edgecolor','none','facealpha',0.8); 
+   for k = 1:181
+      p(k).FaceColor = col(k,:); 
+   end
 
-bedmachine('gl','color',rgb('gray'))
-axis tight off 
+   bedmachine('gl','color',rgb('gray'))
+   axis tight off 
+end
 
 %% Area and Mass time series
 
@@ -190,6 +194,10 @@ M2 = double(ice2).*IceMass2;
 M2_plus = double(ice2).*IceMass2_plus;
 A2 = double(ice2).*cube2rect(A,tidal & ever_ice);
 
+% We're focused on the floating pixels that change, but to account for the whole continent we'll need to add the grounded ice pixels too:  
+A_neglected = sum(A(ever_ice & ~tidal),'all'); 
+M_neglected = sum(IceMass(ever_ice & ~tidal),'all'); 
+
 M_calving = nan(24,183); 
 M_calving_plus = nan(24,183); 
 A_calving = nan(24,183); 
@@ -198,12 +206,12 @@ for k = 1:181
    M_calving_plus(:,k) = sum(M2_plus(:,mask2==k),2); 
    A_calving(:,k) = sum(A2(:,mask2==k),2); 
 end
-M_calving(:,182) = sum(M2(:,mask2==0),2); 
-M_calving(:,183) = sum(M2,2); 
-M_calving_plus(:,182) = sum(M2_plus(:,mask2==0),2); 
-M_calving_plus(:,183) = sum(M2_plus,2); 
-A_calving(:,182) = sum(A2(:,mask2==0),2); 
-A_calving(:,183) = sum(A2,2); 
+M_calving(:,182) = sum(M2(:,mask2==0),2)+M_neglected; 
+M_calving(:,183) = sum(M2,2)+M_neglected; 
+M_calving_plus(:,182) = sum(M2_plus(:,mask2==0),2)+M_neglected; 
+M_calving_plus(:,183) = sum(M2_plus,2)+M_neglected; 
+A_calving(:,182) = sum(A2(:,mask2==0),2)+A_neglected; 
+A_calving(:,183) = sum(A2,2)+A_neglected; 
 
 M_calving_err = M_calving_plus - M_calving; 
 
@@ -220,7 +228,7 @@ yline(CF_ss(end))
 ylabel 'calving rate (Gt/yr)' 
 
 readme = 'ice area time series and corresponding mass time series.  Created by icecube2calvingflux.m';   
-% save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/calving_flux_timeseries.mat','year','readme','CF_ss','GL_ss','A_calving','M_calving','CF_ss_err','GL_ss_err','M_calving_err')
+% save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/calving_flux_timeseries.mat','year','readme','CF_ss','GL_ss','A_calving','M_calving','CF_ss_err','GL_ss_err','M_calving_err')
 
 %% 
 % 
