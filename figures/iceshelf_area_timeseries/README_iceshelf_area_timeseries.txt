@@ -1,0 +1,5 @@
+These figures show our composite time series of area of each ice shelf, in the context of the area measured by each contributing dataset. The intention of these plots is mainly to understand the performance  and limitations of the algorithm we use to combine coastlines from multiple datasets. These plots also give an overall sense of timing of calving events, whether or not a given ice shelf is growing, or if the reported changes are above the noise floor of the various contributing datasets. The areas presented here have not been corrected for polar stereographic distortion, although all of the figures in the main text of the paper and all values explicitly reported in the paper have been corrected for ps distortion. 
+
+Created by icemask_analysis.m.
+
+Chad Greene, NASA Jet Propulsion Laboratory, November 2021. 

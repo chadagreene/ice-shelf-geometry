@@ -36,13 +36,13 @@ S2 = cube2rect(S.ice,tidal & ever_ice);
 R2 = cube2rect(R.ice,tidal & ever_ice); 
 
 
-A = NaN(24,181); 
+A = NaN(24,183); 
 M = A; 
 
-A_F = NaN(19,181); 
-A_S = NaN(7,181); 
-A_R = NaN(2,181); 
-A_MOA = NaN(3,181); 
+A_F = NaN(19,183); 
+A_S = NaN(7,183); 
+A_R = NaN(2,183); 
+A_MOA = NaN(3,183); 
 for k = 1:181
    
    A(:,k) = sum(ice2(:,mask2==k),2)*240^2; 
@@ -54,9 +54,78 @@ for k = 1:181
    A_MOA(:,k) = sum(MOA2(:,mask2==k),2)*240^2; 
 end
 
+A(:,182) = sum(ice2(:,mask2==0),2)*240^2; 
+A_F(:,182) = sum(F2(:,mask2==0),2)*240^2; 
+A_S(:,182) = sum(S2(:,mask2==0),2)*240^2; 
+A_R(:,182) = sum(R2(:,mask2==0),2)*240^2; 
+A_MOA(:,182) = sum(MOA2(:,mask2==0),2)*240^2; 
+
+A(:,183) = sum(ice2,2)*240^2; 
+A_F(:,183) = sum(F2,2)*240^2; 
+A_S(:,183) = sum(S2,2)*240^2; 
+A_R(:,183) = sum(R2,2)*240^2; 
+A_MOA(:,183) = sum(MOA2,2)*240^2; 
+
 Adiff = A(end,:)-A(1,:);
 CMdiff = M(end,:)-M(1,:);
 
+%%
+
+D.name{182}='Other'; 
+D.name{183}='Antarctica'; 
+
+lw1=0.5; % contributing linewidth
+lw2 = 1; % composite linewidth
+ms=3; % markersize
+
+for kk=0:6
+   figure('pos',[40 40 560 760])
+   for k = 1:27
+      if (kk*27+k)<=183
+         subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
+
+         set(gca,'fontsize',5) 
+            plot(R.yr+.75,A_R(:,kk*27+k)/1000^2,'o','color',hex2rgb('ba495c'),'linewidth',lw1,'markersize',ms)
+            hold on
+            plot(MOA.yr+.2,A_MOA(:,kk*27+k)/1000^2,'^','color',hex2rgb('8960b3'),'linewidth',lw1,'markersize',ms)
+            plot(F.years+.2,A_F(:,kk*27+k)/1000^2,'s','color',hex2rgb('56ae6c'),'linewidth',lw1,'markersize',ms)
+            plot(S.yr+.2,A_S(:,kk*27+k)/1000^2,'p','color',hex2rgb('b0913b'),'linewidth',lw1,'markersize',ms)
+            plot(year,A(:,kk*27+k)/1000^2,'k-','linewidth',lw2,'markersize',ms) 
+            box off
+            axis tight
+            xlim([1997 2022])
+            ntitle(D.name{kk*27+k},'fontsize',5,'color',rgb('dark blue'))
+
+            ax = gca; 
+            ax.YAxis.Exponent = 0;
+            ytickformat('%.0f');
+            set(gca,'fontsize',5,'xcolor',.15*[1 1 1],'ycolor',.15*[1 1 1])
+
+      end
+      if kk==6
+         k=21; % just to set the legend on the last plot properly
+      end
+   end
+
+   % Make a legend for the last axes: 
+   lg = legend('Radarsat','MOA','Fraser MODIS','Fraser Sentinel','composite','location','southwest');
+
+   % Create a new axis just to get its position: 
+   tmpax = subsubplot(7,4,k+1,'vpad',0.04,'hpad',0.04);
+
+   % Move the legend to the empty axis position and delete the empty axes: 
+   lg.Position=tmpax.Position;
+   delete(tmpax)
+
+   if kk==0
+      sgtitle('Ice shelf area time series (km^2)','fontsize',8) 
+   else
+      sgtitle('Ice shelf area time series (km^2), continued','fontsize',8) 
+   end
+
+   export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/iceshelf_area_timeseries/iceshelf_area_timeseries_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
+
+end
 %%
 
 figure('pos',[14 500 500 310])
