@@ -1,4 +1,6 @@
-
+% This script creates time series plots of ice shelf area
+% change. 
+% Chad Greene, NASA JPL November 2021. 
 
 %% Load data 
 
@@ -38,6 +40,8 @@ text(-4.32,polyval(pv,-4.32),' Iceberg A76 ','vert','top','horiz','left','fontsi
 
 year = [year 2021.4]; 
 A_calving = [A_calving;NaN(1,183)];
+%A_calving = [A_calving; A_calving(end,:)]; % including these here makes the past and future time series plot look weird with dots for May 2021.  
+
 A_calving(end,132) = A_calving(end-1,132)-4.320; % Iceberg A-76 https://www.esa.int/ESA_Multimedia/Images/2021/05/Meet_the_world_s_largest_iceberg#.YKTfep3wFKU.link
 A_calving(end,end) = A_calving(end-1,end)-4.320; 
 
