@@ -24,7 +24,7 @@ thickness(ground & (bed+thickness)<0) = thicknessf(ground & (bed+thickness)<0);
 ground((thickness+bed)<0) = false; 
 
 sfz = thickness2freeboard(thickness); 
-sfz(ground) = bedmachine_interp('thickness',X(ground),Y(ground)); 
+sfz(ground) = bedmachine_interp('surface',X(ground),Y(ground)); 
 
 % vx(~ever_ice) = 32767; 
 % vy(~ever_ice) = 32767; 
@@ -39,6 +39,5 @@ sfz = int16(sfz);
 readme = 'This is the setup for an issm experiment. All velocity and thickness values that are not ever_ice can be set to NaN. Created by issm_calving_melt_setup.mat.';
 % save('/Users/cgreene/Documents/MATLAB/DEM_generation/issm_calving_melt_setup.mat','x','y','bed','thickness','sfz','vx','vy','ever_ice','ground','readme','-v7.3')
 % save('/Users/cgreene/Documents/MATLAB/DEM_generation/issm_calving_melt_setup_surface.mat','x','y','sfz','readme','-v7.3') % Only because I neglected to include the surface in the first file, but now issm_calving_melt_setup.mat includes it so no need for a second .mat file. 
-
 
 
