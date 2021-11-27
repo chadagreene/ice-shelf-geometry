@@ -109,16 +109,22 @@ dHdt_err(182) = sum(H_trend_err2(mask2==182).*F2(mask2==182));
 MR(183) = sum(melt_mean2.*F2); 
 %MR_err(183) = sum(??.*F2); 
 SMB(183) = sum(smb_mean2.*F2); 
-SMB_err(183) = sum(smb_err2.*F2); 
+isf = isfinite(SMB_err); 
+isf(183) = false; 
+SMB_err(183) = rssq(SMB_err(isf));
 dHdt(183) = sum(H_trend2.*F2); 
-dHdt_err(183) = sum(H_trend_err2.*F2); 
+isf = isfinite(dHdt_err); 
+isf(183) = false; 
+dHdt_err(183) = rssq(dHdt_err(isf));
 
 
 readme = 'total ice shelf annual rates (Gt/yr) due to MR=meltrate, dHdt=thickness trend, SMB=surface mass balance. Created by thickness2timeseries.m.' 
 
-% save('thickness_and_melt_rates.mat','MR','MR_err','SMB','SMB_err','dHdt','dHdt_err','readme')
+% save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/thickness_and_melt_rates.mat','MR','MR_err','SMB','SMB_err','dHdt','dHdt_err','readme')
 
+%% Paste this into Excel spreadsheet: 
 
+[dHdt dHdt_err SMB SMB_err];
 
 
 %% OLD VERSION 
