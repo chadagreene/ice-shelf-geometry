@@ -238,6 +238,15 @@ Dn = load('iceshelves_2008_v2.mat');
 fn = 'extruded_antarctica_2021-10-18.h5';
 shelf = interp2(ncread(fn,'x'),ncread(fn,'y'),permute(ncread(fn,'iceshelf_mask'),[2 1]),xgl,ygl,'nearest'); 
 
+glf_0 = nan(183,size(flux0,2)); 
+for k = 1:181
+   glf_0(k,:) = -sum(flux0(shelf==k,:),1,'omitnan'); 
+end
+glf_0(182,:) = -sum(flux0(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_0(183,:) = -sum(flux0,1,'omitnan'); 
+
+
+
 glf_cp = nan(183,size(fluxcp,2)); 
 for k = 1:181
    glf_cp(k,:) = -sum(fluxcp(shelf==k,:),1,'omitnan'); 
@@ -377,9 +386,231 @@ title(Dn.name{k})
 
 %%
 
+Fc = nan(183,1); 
+Ft = Fc; 
+pc = Fc; 
+pt = Fc; 
+rsqc = Fc; 
+rsqt = Fc; 
+
+mkc = Fc; 
+mkt = Fc; 
+% 
+% for k = 1:183
+%    mdl = fitlm(HM.M_calving_future(:,k),glf_cf(k,:)); 
+%    Fc(k) = table2array(mdl.Coefficients(2,1)); 
+%    pc(k) = table2array(mdl.Coefficients(2,4)); 
+%    rsqc(k) = mdl.Rsquared.Ordinary; 
+%    
+%    mdl = fitlm(HM.M_thinning_future(:,k),glf_tf(k,:)); 
+%    Ft(k) = table2array(mdl.Coefficients(2,1)); 
+%    pt(k) = table2array(mdl.Coefficients(2,4)); 
+%    rsqt(k) = mdl.Rsquared.Ordinary; 
+%    
+% end
+
+for k = 1:183
+   mdl = fitlm(HM.M_calving_future(:,k),glf_cf(k,:)); 
+   Fc(k) = table2array(mdl.Coefficients(2,1)); 
+   pc(k) = table2array(mdl.Coefficients(2,4)); 
+   rsqc(k) = mdl.Rsquared.Adjusted; 
+   mkc(k) = mann_kendall(HM.M_calving_future(:,k),glf_cf(k,:)); 
+   
+   ind = future_years<=30; % only do first 10 years for thinning bc the response is linear and we want to avoid burning through any ice shelves 
+   mdl = fitlm(HM.M_thinning_future(ind,k),glf_tf(k,ind)); 
+   Ft(k) = table2array(mdl.Coefficients(2,1)); 
+   pt(k) = table2array(mdl.Coefficients(2,4)); 
+   rsqt(k) = mdl.Rsquared.Adjusted; 
+   mkt(k) = mann_kendall(HM.M_thinning_future(ind,k),glf_tf(k,ind)); 
+   
+end
 
 %%
 
+msc = M.M_calving(end,:)'*.01; 
+
+% Losers are any ice shelves that have had a thinning trend over the past few decades (and we're assuming will have a thinning trend in the future) 
+losers = HM.M_thinning_future(end,:)<HM.M_thinning_future(1,:);
+
+ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0;% & losers'; 
+
+% ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & Ft<0 & Fc<0;% & losers'; 
+% ind = (ind & rsqc>.5) | (ind & rsqt>.5); 
+ind(182:183) = false; 
+
+sm1 = sum(Ft(ind)>Fc(ind));
+sm2 = sum(Ft(ind)>Fc(ind)) + sum(Ft(ind)<Fc(ind));
+[round(100*sm1/sm2) sm2]
+
+
+[~,lon] = ps2ll(Dn.x_center,Dn.y_center);
+
+figure
+
+scatter(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),sqrt(Dn.area_km2(ind)),lon(ind),'filled')
+cmocean phase
+caxis([-1 1]*180)
+axis tight
+hold on
+set(gca,'xscale','log','yscale','log')
+text(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),Dn.name(ind),'fontsize',6,'horiz','center','vert','bot','clipping','on')
+hold on
+axis tight
+set(gcf,'renderer','painters')
+tmpx = min(hypot(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind))):.001:max(hypot(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind)));
+pl = plot(tmpx,tmpx,'color',rgb('gray'));
+axis equal
+%%
+
+figure
+
+scatter(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),sqrt(Dn.area_km2(ind)),lon(ind),'filled')
+cmocean phase
+caxis([-1 1]*180)
+
+ind = ind & hypot(Ft.*msc,Fc.*msc)>.15; 
+text(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),Dn.name(ind),'fontsize',6,'horiz','center','vert','bot','clipping','on')
+box off
+axis tight image
+axis([-1 1 -1 1]*max(hypot(Ft(ind).*msc(ind),Fc(ind).*msc(ind)))*1.05)
+xlabel('flux response to 1% thinning (Gt/yr)')
+ylabel('flux response to 1% calving (Gt/yr)') 
+% vline(0,'color',rgb('gray'))
+% hline(0,'color',rgb('gray'))
+hold on
+%ax = axis; 
+% pl(1) = plot(xlim,xlim,'color',rgb('gray'));
+% pl(2) = plot(xlim,-xlim,'color',rgb('gray'));
+% uistack(pl(1),'bottom') 
+% uistack(pl(2),'bottom') 
+%axis(ax) 
+%
+ax = axis; 
+box on
+cm = crameri('-vik',1001); % broc, cork, vik
+set(gca,'color',cm(501-60,:)); 
+
+hp = patch([ax(1) ax(2) 0 ax(1)],[ax(3) ax(3) 0 ax(3)],'b'); 
+hp.FaceColor = cm(501+60,:); 
+
+hp.EdgeColor = 'none'; 
+uistack(hp,'bottom') 
+
+hp(2) = patch([ax(1) 0 ax(2) ax(1)],[ax(4) 0 ax(4) ax(4)],'b'); 
+hp(2).FaceColor = cm(501+60,:) ;
+
+hp(2).EdgeColor = 'none'; 
+uistack(hp(2),'bottom') 
+axis(ax)
+
+%%
+
+
+%% Individual response to past calving
+
+% Line colors: 
+col = double(lab2rgb([80*rand(183,1)+5 128*2*(rand(183,1)-0.5) 128*2*(rand(183,1)-0.5)],'OutputType','uint8'))/255;
+col(end,:) = [0 0 0];
+
+
+figure('pos',[39.00        112.00        603.00        835.00]) 
+% Individual response to past thinning 
+subplot(3,2,1) 
+hold on
+for k=1:181
+   pl(k) = plot(D.year,glf_tp(k,:)-glf_tp(k,1),'color',col(k,:)); 
+   if k<=181
+      text(D.year(end),glf_tp(k,end)-glf_tp(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:))
+   end
+end
+pl(183) = plot(D.year,glf_tp(183,:)-glf_tp(183,1),'color',col(183,:)); 
+pl(183).LineWidth = 1; 
+text(D.year(end),glf_tp(183,end)-glf_tp(183,1),'Antarctica','fontsize',6,'horiz','left','vert','middle','color',col(183,:),'fontweight','bold')
+box off
+axis tight
+ylabel 'change in GL flux (Gt/yr)'
+ntitle('Response to Thickness Change','fontsize',8)
+ylim([-2.5 19])
+set(gca,'fontsize',7)
+
+subplot(3,2,2) 
+hold on
+for k=1:181
+   pl(k) = plot(I.year,glf_cp(k,:)-glf_cp(k,1),'color',col(k,:)); 
+   if k<=181
+      text(I.year(end),glf_cp(k,end)-glf_cp(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:))
+   end
+end
+pl(183) = plot(I.year,glf_cp(183,:)-glf_cp(183,1),'color',col(183,:)); 
+pl(183).LineWidth = 1; 
+text(I.year(end),glf_cp(183,end)-glf_cp(183,1),'Antarctica','fontsize',6,'horiz','left','vert','middle','color',col(183,:),'fontweight','bold')
+box off
+axis tight
+%ylabel 'change in GL flux (Gt/yr)'
+ntitle('Response to Calving','fontsize',8)
+ylim([-2.5 19])
+set(gca,'fontsize',7)
+
+subplot(3,2,3) 
+hold on
+for k=1:181
+   pl(k) = plot(future_years,glf_tf(k,:)-glf_tf(k,1),'color',col(k,:)); 
+   if k<=181
+      text(future_years(end),glf_tf(k,end)-glf_tf(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:))
+   end
+end
+pl(183) = plot(future_years,glf_tf(183,:)-glf_tf(183,1),'color',col(183,:)); 
+pl(183).LineWidth = 1; 
+text(future_years(end),glf_tf(183,end)-glf_tf(183,1),'Antarctica','fontsize',6,'horiz','left','vert','middle','color',col(183,:),'fontweight','bold')
+box off
+axis tight
+set(gca,'fontsize',7)
+xlabel('years of continued trend')
+ylabel('change in GL flux (Gt/yr)') 
+
+subplot(3,2,4)
+hold on
+for k=1:181
+   pl(k) = plot(0:100,glf_cf(k,:)-glf_cf(k,1),'color',col(k,:)); 
+   if k<=181
+      text(100,glf_cf(k,end)-glf_cf(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:))
+   end
+end
+pl(183) = plot(0:100,glf_cf(183,:)-glf_cf(183,1),'color',col(183,:)); 
+pl(183).LineWidth = 1; 
+text(100,glf_cf(183,end)-glf_cf(183,1),'Antarctica','fontsize',6,'horiz','left','vert','middle','color',col(183,:),'fontweight','bold')
+box off
+axis tight
+set(gca,'fontsize',7)
+xlabel('percent of ice shelf area collapse')
+
+
+subplot(3,2,5)
+patchsc(Dn.x,Dn.y,1000*Ft(1:181),...
+   'colormap',crameri('-vik'),...
+   'caxis',[-1 1]*2,...
+   'edgecolor','none')
+axis tight off
+bedmachine('gl','color',0.7*[1 1 1],'linewidth',0.2)
+bedmachine('coast','color',0.7*[1 1 1],'linewidth',0.2)
+cb=colorbarps; 
+set(cb,'fontsize',6)
+xlabel(cb,'GLF response (Mt/yr per Gt of thinning)')
+
+
+subplot(3,2,6)
+patchsc(Dn.x,Dn.y,1000*Fc(1:181),...
+   'colormap',crameri('-vik'),...
+   'caxis',[-1 1]*2,...
+   'edgecolor','none')
+axis tight off
+bedmachine('gl','color',0.7*[1 1 1],'linewidth',0.2)
+bedmachine('coast','color',0.7*[1 1 1],'linewidth',0.2)
+cb=colorbarps; 
+set(cb,'fontsize',6)
+xlabel(cb,'GLF response (Mt/yr per Gt of calving)')
+
+%%
 flux_per_calve = nan(183,1); 
 flux_per_calve_p = flux_per_calve; 
 flux_per_calve_r = flux_per_calve; 
@@ -399,7 +630,7 @@ HM = load('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/hypothetical_
 flux_per_calvef = nan(183,1); 
 flux_per_calvef_sig = nan(183,1); 
 
-ind = 1:51; 
+ind = 1:101; 
 
 for k=1:183
    pv = polyfit(HM.M_calving_future(ind,k),glf_cf(k,ind)',1); 
@@ -425,7 +656,7 @@ HM = load('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/hypothetical_
 flux_per_thinf = nan(183,1); 
 flux_per_thinf_sig = nan(183,1); 
 
-ind = 1:26; 
+ind = 1:10; 
 
 for k=1:183
    pv = polyfit(HM.M_thinning_future(ind,k),glf_tf(k,ind)',1); 
@@ -433,8 +664,9 @@ for k=1:183
    flux_per_thinf_sig(k) = mann_kendall(HM.M_thinning_future(ind,k),glf_tf(k,ind)'); 
 end
 
+%%
 figure
-patchsc(Dn.x,Dn.y,flux_per_thinf(1:181),...
+patchsc(Dn.x,Dn.y,Ft(1:181)*1000,...
    'colormap',crameri('-vik'),...
    'caxis',[-1 1]*2,...
    'edgecolor','none')
@@ -449,11 +681,11 @@ ind = flux_per_thinf_sig&flux_per_calvef_sig;
 flux_per_thinf(~ind) = nan; 
 
 figure
-scatter(flux_per_thinf(1:181),flux_per_calvef(1:181))
+scatter(flux_per_thinf(1:181).*glf_0(1:181),flux_per_calvef(1:181).*glf_0(1:181))
 
 %axis([-1 1 -1 1]*150)
 
-text(flux_per_thinf(1:181),flux_per_calvef(1:181),Dn.name,'horiz','center','vert','bot','fontsize',6)
+text(flux_per_thinf(1:181).*glf_0(1:181),flux_per_calvef(1:181).*glf_0(1:181),Dn.name,'horiz','center','vert','bot','fontsize',6)
 
 %%
 
@@ -478,11 +710,10 @@ for k = 1:181
       M_thinning(:,k) = sum(H2(:,mask2==k).*F2(mask2==k),2); 
    end
 end
-
 M_thinning(:,182) = sum(H2(:,mask2==0).*F2(mask2==0),2); 
 M_thinning(:,183) = sum(H2.*F2,2); 
 
-clear D.H
+clear D.H F F2 mask2 H2
 %%
 
 flux_per_thin = nan(183,1); 
