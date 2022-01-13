@@ -278,6 +278,154 @@ end
 glf_tf(182,:) = -sum(fluxtf(~ismember(shelf,1:181),:),1,'omitnan'); 
 glf_tf(183,:) = -sum(fluxtf,1,'omitnan'); 
 
+%% Generate pdfs of response to thinning and calving. 
+
+% colt = hex2rgb('f9575a'); 
+% colc = hex2rgb('6f78f2'); 
+% 
+% Dn.name{182}='Other'; 
+% Dn.name{183}='Antarctica'; 
+% 
+% lw2 = 1; % composite linewidth
+% ms=3; % markersize
+% 
+% for kk=0:6
+%    figure('pos',[40 40 560 760])
+%    for k = 1:27
+%       if (kk*27+k)<=183
+%          subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
+% 
+%          set(gca,'fontsize',5) 
+%             plot(D.year,glf_tp(kk*27+k,:),'color',colt,'linewidth',lw2,'markersize',ms)
+%             hold on
+%             plot(I.year,glf_cp(kk*27+k,:),'color',colc,'linewidth',lw2,'markersize',ms)
+% 
+%             box off
+%             axis tight
+%             %xlim([1997 2022])
+%             ntitle(Dn.name{kk*27+k},'fontsize',5,'color','k')
+% 
+%             ax = gca; 
+%             %ax.YAxis.Exponent = 0;
+%             %ytickformat('%.0f');
+%             set(gca,'fontsize',5,'xcolor',.15*[1 1 1],'ycolor',.15*[1 1 1])
+% 
+%       end
+%       if kk==6
+%          k=21; % just to set the legend on the last plot properly
+%       end
+%    end
+% 
+%    % Make a legend for the last axes: 
+%    lg = legend('response to thinning','response to calving','location','southwest');
+% 
+%    % Create a new axis just to get its position: 
+%    tmpax = subsubplot(7,4,k+1,'vpad',0.04,'hpad',0.04);
+% 
+%    % Move the legend to the empty axis position and delete the empty axes: 
+%    lg.Position=tmpax.Position;
+%    delete(tmpax)
+% 
+%    if kk==0
+%       sgtitle('Modeled grounding line flux (Gt yr^{-1})','fontsize',8) 
+%    else
+%       sgtitle('Modeled grounding line flux (Gt yr^{-1}), continued','fontsize',8) 
+%    end
+% 
+%    export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_timeseries/issm_GL_flux_from_thinning_and_calving_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
+% 
+% end
+
+%% Generate pdfs of response to hypothetical thinning
+% 
+% for kk=0:6
+%    figure('pos',[40 40 560 760])
+%    for k = 1:27
+%       if (kk*27+k)<=183
+%          subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
+% 
+%          set(gca,'fontsize',5) 
+%             plot(future_years,glf_tf(kk*27+k,:),'color',colt,'linewidth',lw2,'markersize',ms)
+%             hold on
+%             %plot(0:100,glf_cf(kk*27+k,:),'color',colc,'linewidth',lw2,'markersize',ms)
+% 
+%             box off
+%             axis tight
+%             %xlim([1997 2022])
+%             ntitle(Dn.name{kk*27+k},'fontsize',5,'color','k')
+% 
+%             ax = gca; 
+%             %ax.YAxis.Exponent = 0;
+%             %ytickformat('%.0f');
+%             set(gca,'fontsize',5,'xcolor',.15*[1 1 1],'ycolor',.15*[1 1 1])
+% 
+%       end
+%       if kk==6
+%          k=21; % just to set the legend on the last plot properly
+%       end
+%    end
+% 
+%    % Make a legend for the last axes: 
+%    lg = legend('response to thinning','location','southwest');
+% 
+%    % Create a new axis just to get its position: 
+%    tmpax = subsubplot(7,4,k+1,'vpad',0.04,'hpad',0.04);
+% 
+%    % Move the legend to the empty axis position and delete the empty axes: 
+%    lg.Position=tmpax.Position;
+%    delete(tmpax)
+% 
+%    sgtitle('Modeled grounding line flux (Gt yr^{-1}) response to years of continued trends','fontsize',8) 
+% 
+%    export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_timeseries/issm_GL_flux_from_hypothetical_thinning_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
+% 
+% end
+
+%% Generate pdfs of response to hypothetical calving
+
+% for kk=0:6
+%    figure('pos',[40 40 560 760])
+%    for k = 1:27
+%       if (kk*27+k)<=183
+%          subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
+% 
+%          set(gca,'fontsize',5) 
+%             plot(0:100,glf_cf(kk*27+k,:),'color',colc,'linewidth',lw2,'markersize',ms)
+%             hold on
+%             %
+%             box off
+%             axis tight
+%             %xlim([1997 2022])
+%             ntitle(Dn.name{kk*27+k},'fontsize',5,'color','k')
+% 
+%             ax = gca; 
+%             %ax.YAxis.Exponent = 0;
+%             %ytickformat('%.0f');
+%             set(gca,'fontsize',5,'xcolor',.15*[1 1 1],'ycolor',.15*[1 1 1])
+% 
+%       end
+%       if kk==6
+%          k=21; % just to set the legend on the last plot properly
+%       end
+%    end
+% 
+%    % Make a legend for the last axes: 
+%    lg = legend('response to calving','location','southwest');
+% 
+%    % Create a new axis just to get its position: 
+%    tmpax = subsubplot(7,4,k+1,'vpad',0.04,'hpad',0.04);
+% 
+%    % Move the legend to the empty axis position and delete the empty axes: 
+%    lg.Position=tmpax.Position;
+%    delete(tmpax)
+% 
+%    sgtitle('Modeled grounding line flux (Gt yr^{-1}) response to ice shelf loss, by percent area','fontsize',8) 
+% 
+%    export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_timeseries/issm_GL_flux_from_hypothetical_calving_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
+% 
+% end
+
+
 %% Individual response to past calving
 
 % Line colors: 
@@ -395,19 +543,6 @@ rsqt = Fc;
 
 mkc = Fc; 
 mkt = Fc; 
-% 
-% for k = 1:183
-%    mdl = fitlm(HM.M_calving_future(:,k),glf_cf(k,:)); 
-%    Fc(k) = table2array(mdl.Coefficients(2,1)); 
-%    pc(k) = table2array(mdl.Coefficients(2,4)); 
-%    rsqc(k) = mdl.Rsquared.Ordinary; 
-%    
-%    mdl = fitlm(HM.M_thinning_future(:,k),glf_tf(k,:)); 
-%    Ft(k) = table2array(mdl.Coefficients(2,1)); 
-%    pt(k) = table2array(mdl.Coefficients(2,4)); 
-%    rsqt(k) = mdl.Rsquared.Ordinary; 
-%    
-% end
 
 for k = 1:183
    mdl = fitlm(HM.M_calving_future(:,k),glf_cf(k,:)); 
@@ -416,7 +551,7 @@ for k = 1:183
    rsqc(k) = mdl.Rsquared.Adjusted; 
    mkc(k) = mann_kendall(HM.M_calving_future(:,k),glf_cf(k,:)); 
    
-   ind = future_years<=30; % only do first 10 years for thinning bc the response is linear and we want to avoid burning through any ice shelves 
+   ind = future_years<=30; % only do first 30 years for thinning bc the response is linear and we want to avoid burning through any ice shelves 
    mdl = fitlm(HM.M_thinning_future(ind,k),glf_tf(k,ind)); 
    Ft(k) = table2array(mdl.Coefficients(2,1)); 
    pt(k) = table2array(mdl.Coefficients(2,4)); 
@@ -432,7 +567,7 @@ msc = M.M_calving(end,:)'*.01;
 % Losers are any ice shelves that have had a thinning trend over the past few decades (and we're assuming will have a thinning trend in the future) 
 losers = HM.M_thinning_future(end,:)<HM.M_thinning_future(1,:);
 
-ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0;% & losers'; 
+ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0 & msc>=msc(56);% msc(56) sets Frost as the smallest ice shelf to consider 
 
 % ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & Ft<0 & Fc<0;% & losers'; 
 % ind = (ind & rsqc>.5) | (ind & rsqt>.5); 
@@ -440,16 +575,18 @@ ind(182:183) = false;
 
 sm1 = sum(Ft(ind)>Fc(ind));
 sm2 = sum(Ft(ind)>Fc(ind)) + sum(Ft(ind)<Fc(ind));
-[round(100*sm1/sm2) sm2]
-
+[sm1 sm1/sm2 sm2]
 
 [~,lon] = ps2ll(Dn.x_center,Dn.y_center);
 
 figure
 
-scatter(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),sqrt(Dn.area_km2(ind)),lon(ind),'filled')
+hs=scatter(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),sqrt(Dn.area_km2(ind)),lon(ind),'filled');
 cmocean phase
 caxis([-1 1]*180)
+% hs=scatter(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind),sqrt(Dn.area_km2(ind)),hypot(sqrt(rsqc(ind)),sqrt(rsqt(ind))),'filled');
+% cmocean amp
+% %caxis([-1 1]*180)
 axis tight
 hold on
 set(gca,'xscale','log','yscale','log')
@@ -458,8 +595,61 @@ hold on
 axis tight
 set(gcf,'renderer','painters')
 tmpx = min(hypot(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind))):.001:max(hypot(-Ft(ind).*msc(ind),-Fc(ind).*msc(ind)));
-pl = plot(tmpx,tmpx,'color',rgb('gray'));
+%pl = plot(tmpx,tmpx,'color',rgb('gray'));
 axis equal
+xlabel 'GLF response to 1% thinning (Gt/yr)' 
+ylabel 'GLF response to 1% calving (Gt/yr)' 
+
+ad = [hs.XData,hs.YData];
+axis([min(ad)/2 max(ad)*2 min(ad)/2 max(ad)*2])
+daspect([1 1 1]) 
+
+ax = axis; 
+box on
+cm = crameri('-vik',1001); % broc, cork, vik
+set(gca,'color',cm(501-60,:)); 
+
+hp = patch([ax(1) ax(2) ax(1) ax(1)],[ax(3) ax(4) ax(4) ax(3)],'b'); 
+hp.FaceColor = cm(501+60,:); 
+
+hp.EdgeColor = 'none'; 
+uistack(hp,'bottom') 
+
+box off
+axis(ax)
+set(gca,'fontsize',7)
+
+if ~exist('P','var')
+   for k = 1:181
+      tmpx = Dn.x{k}; 
+      tmpy = Dn.y{k}; 
+      P(k) = polyshape(tmpx,tmpy); 
+   end
+end
+
+col = mat2rgb(lon,cmocean('phase'),[-1 1]*180); 
+
+
+gp = plotboxpos(gca);
+axes('position',[gp(1) gp(2)+(.75)*gp(4) .25*gp(3) .25*gp(4)])
+ 
+hold on
+for k = 1:181
+   plot(P(k),'facecolor',col(k,:),'facealpha',1,'edgecolor','none')
+end
+
+% bedmachine('gl','linewidth',0.2,'color',0.5*[1 1 1])
+% axis image
+%hant = antbounds('coast','polyshape','facecolor','w','facealpha',1,'edgecolor',.5*[1 1 1],'linewidth',0.2);
+hant = antbounds('coast','polyshape','facecolor','w','facealpha',1,'edgecolor','none');
+uistack(hant,'bottom'); 
+axis tight off
+bedmachine('coast','color',0.3*[1 1 1],'linewidth',0.1)
+bedmachine('gl','color',0.3*[1 1 1],'linewidth',0.1)
+gp2 = plotboxpos(gca); 
+set(gca,'xcolor','none','ycolor','none','pos',[gp(1) gp(2)+gp(4)-gp2(4) gp2(3) gp2(4)])
+ 
+
 %%
 
 figure
@@ -876,3 +1066,25 @@ hp(2).FaceColor = cm(501+60,:) ;
 hp(2).EdgeColor = 'none'; 
 uistack(hp(2),'bottom') 
 axis(ax_old) 
+
+
+%%
+
+
+function RGB = mat2rgb(val,cmap,limits)
+% 
+% 
+% Chad Greene wrote this, July 2016. 
+
+if nargin==2
+   limits = [min(val) max(val)]; 
+end
+
+gray = mat2gray(val,limits); 
+
+ind = gray2ind(gray,size(cmap,1));
+
+RGB = cmap(ind+1,:); 
+
+end
+

@@ -6,25 +6,26 @@
 
 %% Load data 
 
-D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube_1992-2018.mat','x','y','year','ground'); 
-load ice_vel_results_calve.mat % contains control, then historical, then future
+%D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube_1992-2018.mat','x','y','year','ground'); 
+load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_calve_v2.mat','ice_mask_results') % contains control, then historical, then future
 
+G = load('issm_gl_flux.mat'); % from issm_thickness_response_analysis.m
 %%
 
-isg = interp2(D.x,D.y,D.ground,x,y,'nearest');
+isg = all(ice_mask_results==1,2); 
+
+clear ice_mask_results
 
 % For calving experiment (past) assume no acceleration occurred on grounded ice since last timestep: 
 % And start over for hypothetical future experiment, but don't let the past affect the future: 
 for k = [3:25 27:126]
-
-ind = isg & ice_vel_results(:,k)==0; 
-ice_vel_results(ind,k) = ice_vel_results(ind,k-1); 
+   
+   ind = (isg & ice_vel_results(:,k)==0) | ice_vel_results(:,k)>10e3; 
+   ice_vel_results(ind,k) = ice_vel_results(ind,k-1); 
 
 end
 
-%% Animating calving response 
-
-G = load('issm_gl_flux.mat'); 
+%% Initialize the figure:
 
 cm = cmocean('bal'); 
 
@@ -49,7 +50,6 @@ uistack(ab,'bottom')
 drawnow
 axmap=gca; 
 
-
 ax = axes; 
 pl1 = plot(0:100,G.glf_cf(end,:),'color',rgb('dark red'),'linewidth',1); 
 hold on
@@ -57,13 +57,15 @@ pl2 = plot(100,G.glf_cf(end,end),'o','markersize',4,'markerfacecolor',rgb('dark 
 set(ax,'pos',[.45 .45 .32 .38],'color','none','fontsize',7,'xtick',0:10:100)
 xlabel('percent ice shelf collapse','fontsize',7)
 box off
-axis([0 100 2200 5200])
+axis([0 100 2100 5200])
 title 'Grounding Line Flux (Gt/yr)'
 
 axes(axmap) % makes map axes current 
 uistack(axmap,'bottom') 
 
-vd = VideoWriter(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/animations/issm_calving_response2.mp4'],'MPEG-4'); 
+%% Write the video
+
+vd = VideoWriter(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/animations/issm_hypothetical_calving_response.mp4'],'MPEG-4'); 
 vd.FrameRate=16; %
 vd.Quality=100; 
 open(vd)
@@ -79,18 +81,10 @@ for k=1:101
    set(pl1,'XData',0:(k-1),'YData',G.glf_cf(end,1:k))
    set(pl2,'XData',k-1,'YData',G.glf_cf(end,k))
    drawnow
-%       if k==1
-%          gif('calving_response.gif','resolution',300)
-%       else
-%          gif
-%       end
-   fr = export_fig('-nocrop','-r600'); % can use getframe(gcf) instead, but export_fig offers more control over resolution, etc.  
+   fr = export_fig('-nocrop','-r600','-painters'); % can use getframe(gcf) instead, but export_fig offers more control over resolution, etc.  
    writeVideo(vd,fr)
+   k
 end
 close(vd)
-
-%    for k=1:10
-%       gif
-%    end
 
 clear good cb fr h k tmp vd
