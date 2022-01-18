@@ -11,6 +11,7 @@ D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube
 I = load('icemask_composite.mat','year'); 
 load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_calve_v2.mat') % contains control, then historical, then future
 load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_thickness_v2.mat') % contains historical then future 
+load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_thinningp_v2.mat','thinningp_vel_results') % contains historical then future 
 
 isg = all(ice_mask_results==1,2); 
 
@@ -18,6 +19,18 @@ H0 = thickness_H_results(:,1); % only take the first thickness bc that's the con
 clear thickness_H_results ice_mask_results
 
 %% Constrain Island velocities after calving
+
+% mxv = max(thinningp_vel_results,[],2); 
+% % If any calving nodes exceed the max value of the thinning experiment,
+% % replace em: 
+% for k = [3:25 27:126]
+%    
+%    ind = (isg & ice_vel_results(:,k))>mxv; 
+%    ice_vel_results(ind,k) = mxv(ind); 
+%    
+% end
+% 
+% clear mxv 
 
 % For calving experiment (past) assume no acceleration occurred on grounded ice since last timestep: 
 % And start over for hypothetical future experiment, but don't let the past affect the future: 
@@ -28,6 +41,14 @@ for k = [3:25 27:126]
    
 end
 
+% Do the same for future thinning
+for k = 2:100
+   
+   ind = (isg & thinningp_vel_results(:,k)==0) | thinningp_vel_results(:,k)>10e3; 
+   thinningp_vel_results(ind,k) = thinningp_vel_results(ind,k-1); 
+   
+end
+
 %% Trim datasets 
 % To ensure we're fitting a surface to the same nodes in every experiment, 
 % we now remove any nodes that aren't always there. 
@@ -35,6 +56,7 @@ end
 keep = any(ice_vel_results>0,2) & all(thickness_vel_results>0,2); 
 ice_vel_results = ice_vel_results(keep,:); 
 thickness_vel_results = thickness_vel_results(keep,:); 
+thinningp_vel_results = thinningp_vel_results(keep,:); 
 x = x(keep); 
 y = y(keep); 
 H0 = H0(keep); 
@@ -49,7 +71,8 @@ vcf = ice_vel_results(:,26:end); % calving future
 
 vtp = thickness_vel_results(:,1:26); % thickness past
 vtf = thickness_vel_results(:,27:end); % thickness future
-clear thickness_* ice_vel* ind isg
+vtf2 = [v0 thinningp_vel_results]; % 0 to ~99.9% thinning
+clear thickness_* ice_vel* ind isg thinningp_vel_results
 
 %% Define the grounding line: 
 
@@ -137,6 +160,7 @@ ylabel 'gl flux (Gt/yr)'
 
 %% Calving future: 
 
+%keep = all(vcf>0,2); 
 keep = all(vcf>0,2); 
 
 fluxcf = nan(numel(flux0),size(vcf,2)); 
@@ -203,6 +227,7 @@ ylabel 'GL flux anomaly (Gt/yr)'
 
 % export_fig issm_response_thinning_calving_past.png -r500 -p0.01
 %% Thinning future
+% This is the "continued trends" run. 
 
 load('iceshelf_thickness_cube_future.mat','future_years') 
 
@@ -232,52 +257,99 @@ plot(future_years,-sum(fluxtf,'omitnan'))
 box off 
 axis tight
 
+%% Thinning future 2
+% This is the "percent ice shelf thinning" run. 
+
+keep = all(vtf2>0,2) & all(vcf>0,2); 
+%keep = all(vtf2>0,2); 
+fluxtf2 = nan(numel(flux0),size(vtf2,2)); 
+
+for k=1:size(fluxtf2,2)
+   
+   if k==1
+      F = scatteredInterpolant(x(keep),y(keep),vtf2(keep,k)-v0(keep),'natural'); 
+   else
+      % Update the interpolant: 
+      F.Values = vtf2(keep,k)-v0(keep); 
+   end
+   
+   % Calculate velocity along the gl: 
+   vtmp = F(xgl,ygl) + v0gl; 
+
+   % Get flux at every grid point: 
+   fluxtf2(:,k) = (gradient(xgl).*vygl_unit - gradient(ygl).*vxgl_unit).*vtmp.*H0gl*917*1e-12; 
+
+   k
+end
+
+figure
+plot(0:100,-sum(fluxtf2,'omitnan'))
+box off 
+axis tight
+
 %%
+M = load('calving_flux_timeseries.mat');
+HM = load('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/hypothetical_iceshelf_mass.mat');
+
 Dn = load('iceshelves_2008_v2.mat');
 
 fn = 'extruded_antarctica_2021-10-18.h5';
-shelf = interp2(ncread(fn,'x'),ncread(fn,'y'),permute(ncread(fn,'iceshelf_mask'),[2 1]),xgl,ygl,'nearest'); 
+shelfgl = interp2(ncread(fn,'x'),ncread(fn,'y'),permute(ncread(fn,'iceshelf_mask'),[2 1]),xgl,ygl,'nearest'); 
+shelfgl(shelfgl==0) = 182; 
+% shelf = interp2(ncread(fn,'x'),ncread(fn,'y'),permute(ncread(fn,'iceshelf_mask'),[2 1]),x,y,'nearest'); 
+% shelf(shelf==0) = 182; 
 
 glf_0 = nan(183,size(flux0,2)); 
 for k = 1:181
-   glf_0(k,:) = -sum(flux0(shelf==k,:),1,'omitnan'); 
+   glf_0(k,:) = -sum(flux0(shelfgl==k,:),1,'omitnan'); 
 end
-glf_0(182,:) = -sum(flux0(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_0(182,:) = -sum(flux0(~ismember(shelfgl,1:181),:),1,'omitnan'); 
 glf_0(183,:) = -sum(flux0,1,'omitnan'); 
-
-
 
 glf_cp = nan(183,size(fluxcp,2)); 
 for k = 1:181
-   glf_cp(k,:) = -sum(fluxcp(shelf==k,:),1,'omitnan'); 
+   glf_cp(k,:) = -sum(fluxcp(shelfgl==k,:),1,'omitnan'); 
 end
-glf_cp(182,:) = -sum(fluxcp(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_cp(182,:) = -sum(fluxcp(~ismember(shelfgl,1:181),:),1,'omitnan'); 
 glf_cp(183,:) = -sum(fluxcp,1,'omitnan'); 
 
 
 glf_tp = nan(183,size(fluxtp,2)); 
 for k = 1:181
-   glf_tp(k,:) = -sum(fluxtp(shelf==k,:),1,'omitnan'); 
+   glf_tp(k,:) = -sum(fluxtp(shelfgl==k,:),1,'omitnan'); 
 end
-glf_tp(182,:) = -sum(fluxtp(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_tp(182,:) = -sum(fluxtp(~ismember(shelfgl,1:181),:),1,'omitnan'); 
 glf_tp(183,:) = -sum(fluxtp,1,'omitnan'); 
 
 
 glf_cf = nan(183,size(fluxcf,2)); 
 for k = 1:181
-   glf_cf(k,:) = -sum(fluxcf(shelf==k,:),1,'omitnan'); 
+   glf_cf(k,:) = -sum(fluxcf(shelfgl==k,:),1,'omitnan'); 
 end
-glf_cf(182,:) = -sum(fluxcf(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_cf(182,:) = -sum(fluxcf(~ismember(shelfgl,1:181),:),1,'omitnan'); 
 glf_cf(183,:) = -sum(fluxcf,1,'omitnan'); 
 
 
 glf_tf = nan(183,size(fluxtf,2)); 
 for k = 1:181
-   glf_tf(k,:) = -sum(fluxtf(shelf==k,:),1,'omitnan'); 
+   glf_tf(k,:) = -sum(fluxtf(shelfgl==k,:),1,'omitnan'); 
 end
-glf_tf(182,:) = -sum(fluxtf(~ismember(shelf,1:181),:),1,'omitnan'); 
+glf_tf(182,:) = -sum(fluxtf(~ismember(shelfgl,1:181),:),1,'omitnan'); 
 glf_tf(183,:) = -sum(fluxtf,1,'omitnan'); 
 
+
+glf_tf2 = nan(183,size(fluxtf2,2)); 
+for k = 1:181
+   glf_tf2(k,:) = -sum(fluxtf2(shelfgl==k,:),1,'omitnan'); 
+end
+glf_tf2(182,:) = -sum(fluxtf2(~ismember(shelfgl,1:181),:),1,'omitnan'); 
+glf_tf2(183,:) = -sum(fluxtf2,1,'omitnan'); 
+
+
+year_cp = I.year; 
+year_tp = D.year; 
+readme = 'created by issm_thickness_response_analysis.m'; 
+%save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/issm_gl_flux.mat','glf_cf','glf_cp','glf_tf','glf_tp','glf_0','glf_tf2','future_years','year_cp','year_tp','readme')
 
 %% Individual response to past calving
 
@@ -326,27 +398,51 @@ set(gca,'fontsize',7)
 
 
 %export_fig observed_thinning_vs_calving_issm_response.png -r600 -p0.01
-return
+
 %%
 
-figure
+Dn.name{182} = 'Other'; 
+Dn.name{183} = 'Antarctica'; 
+
+figure('pos',[52 370 492 573])
 hold on
-for k=1:181
-   pl(k) = plot(0:100,glf_cf(k,:)-glf_cf(k,1),'-','color',col(k,:)); 
-   if k<=181
-      text(100,glf_cf(k,end)-glf_cf(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:))
-   end
+for k=1:183
+   pct = 100*(HM.M_calving_future(1,k)-HM.M_calving_future(:,k))./HM.M_calving_future(1,k);
+   pl(k) = plot(pct,glf_cf(k,:)-glf_cf(k,1),':','color',col(k,:)); 
+   %txt(k)=text(100,glf_cf(k,end)-glf_cf(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:));
 end
-pl(183) = plot(0:100,glf_cf(183,:)-glf_cf(183,1),'-','color',col(183,:)); 
 pl(183).LineWidth = 1; 
-text(100,glf_cf(183,end)-glf_cf(183,1),'Antarctica','fontsize',6,'horiz','left','vert','middle','color',col(183,:),'fontweight','bold')
+%txt(183).FontWeight = 'bold'; 
 box off
 axis tight
 %ylabel 'change in GL flux (Gt/yr)'
-ntitle('Response to Coastal Change','fontsize',8)
+%ntitle('Response to Coastal Change','fontsize',8)
 set(gca,'fontsize',7)
 
+tmp = glf_tf2; 
+%tmp(:,end) = glf_cf(:,end); 
 
+hold on
+for k=1:183
+   %sc = (glf_cf(k,end)-glf_cf(k,1))/(tmp(k,end)-tmp(k,1)); 
+   sc=1; 
+   pl(k) = plot(0:100,(tmp(k,:)-tmp(k,1))*sc,'-','color',col(k,:)); 
+   txt(k)=text(100,(tmp(k,end)-tmp(k,1))*sc,Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:));
+end
+pl(183).LineWidth = 1; 
+txt(183).FontWeight = 'bold'; 
+box off
+axis tight
+%ylabel 'change in GL flux (Gt/yr)'
+%ntitle('Response to Coastal Change','fontsize',8)
+set(gca,'fontsize',7)
+
+ylabel 'Instantaneous change in GL flux Gt/yr'
+xlabel 'percent mass lost'
+
+ntitle({'Solid = thinning experiment';'Dashed = calving experiment'})
+
+return
 %%
 
 xtmp = future_years;
@@ -368,7 +464,6 @@ ylabel 'change in GL flux (Gt/yr)'
 xlabel 'years into the future'
 
 %%
-M = load('calving_flux_timeseries.mat');
 
 %figure 
 %plot(M.year,M.M_calving(:,10))
@@ -415,15 +510,41 @@ end
 
 %%
 
+Fc = nan(183,1); 
+Ft = Fc; 
+pc = Fc; 
+pt = Fc; 
+rsqc = Fc; 
+rsqt = Fc; 
+
+for k = 1:183
+   ind=1:101;
+   mdl = fitlm(HM.M_calving_future(ind,k),glf_cf(k,ind)); 
+   Fc(k) = table2array(mdl.Coefficients(2,1)); 
+   pc(k) = table2array(mdl.Coefficients(2,4)); 
+   rsqc(k) = mdl.Rsquared.Adjusted; 
+   
+   mass = HM.M_calving_future(1,k).*(1:-.01:0); 
+   mdl = fitlm(mass(ind),glf_tf2(k,ind)); 
+   Ft(k) = table2array(mdl.Coefficients(2,1)); 
+   pt(k) = table2array(mdl.Coefficients(2,4)); 
+   rsqt(k) = mdl.Rsquared.Adjusted; 
+   
+end
+
+%%
+
 msc = M.M_calving(end,:)'*.01; 
 
 % Losers are any ice shelves that have had a thinning trend over the past few decades (and we're assuming will have a thinning trend in the future) 
-losers = HM.M_thinning_future(end,:)<HM.M_thinning_future(1,:);
-
-ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0 & msc>=msc(56);% msc(56) sets Frost as the smallest ice shelf to consider 
+% losers = HM.M_thinning_future(end,:)<HM.M_thinning_future(1,:);
+% 
+% ind =pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0 & msc>=msc(56);% msc(56) sets Frost as the smallest ice shelf to consider 
 
 % ind = mkc==1 & mkt==1 & pc<0.001 & pt<0.001 & Ft<0 & Fc<0;% & losers'; 
 % ind = (ind & rsqc>.5) | (ind & rsqt>.5); 
+
+ ind =pc<0.001 & pt<0.001 & rsqc>.5 & rsqt>.5 & Ft<0 & Fc<0 ;
 ind(182:183) = false; 
 
 sm1 = sum(Ft(ind)>Fc(ind));
