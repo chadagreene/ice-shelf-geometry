@@ -53,7 +53,13 @@ end
 % To ensure we're fitting a surface to the same nodes in every experiment, 
 % we now remove any nodes that aren't always there. 
 
-keep = any(ice_vel_results>0,2) & all(thickness_vel_results>0,2); 
+%
+if strict
+   keep = all(ice_vel_results>0,2) & all(thickness_vel_results>0,2) & isg; 
+else
+   keep = any(ice_vel_results>0,2) & all(thickness_vel_results>0,2); 
+end
+   
 ice_vel_results = ice_vel_results(keep,:); 
 thickness_vel_results = thickness_vel_results(keep,:); 
 thinningp_vel_results = thinningp_vel_results(keep,:); 
@@ -349,8 +355,8 @@ glf_tf2(183,:) = -sum(fluxtf2,1,'omitnan');
 year_cp = I.year; 
 year_tp = D.year; 
 readme = 'created by issm_thickness_response_analysis.m'; 
-%save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/issm_gl_flux.mat','glf_cf','glf_cp','glf_tf','glf_tp','glf_0','glf_tf2','future_years','year_cp','year_tp','readme')
-
+%save('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/issm_gl_flux_strict.mat','glf_cf','glf_cp','glf_tf','glf_tp','glf_0','glf_tf2','future_years','year_cp','year_tp','readme')
+return
 %% Individual response to past calving
 
 % Line colors: 

@@ -372,9 +372,11 @@ txt(end-1).String = '+10';
 text(xl(1),20,'Cumulative area change since 1997','fontsize',7,'horiz','left','vert','bot','fontweight','bold','color',.1*[1 1 1])
 set(gca,'ycolor','none','xcolor',axcol)
 
-% export_fig cumulative_area_change.png -r600 -painters -p0.01
+% export_fig cumulative_area_change.jpg -pdf -r600 -painters -p0.01
 %exportgraphics(gca,'cumulative_area_change.pdf')
 % export_fig test.png -r600 -painters -p0.01
+%export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/cumulative_area_change.jpg','-r600','-painters') 
+
 %% (OLD) Time series of past and future calving 
 % 
 % col = hex2rgb({'#50b47b';

@@ -7,7 +7,7 @@ M = load('calving_flux_timeseries.mat');
 HM = load('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/data/hypothetical_iceshelf_mass.mat');
 D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube_1992-2018.mat','x','y','year');
 I = load('icemask_composite.mat','year');
-load('issm_gl_flux.mat'); % from issm_thickness_response_analysis 
+load('issm_gl_flux_strict.mat'); % from issm_thickness_response_analysis 
 Dn = load('iceshelves_2008_v2.mat');
 
 if ~exist('P','var')
@@ -85,9 +85,9 @@ for kk=0:6
          subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
 
          set(gca,'fontsize',5) 
-            plot(0:100,glf_tf2(kk*27+k,:),'color',colt,'linewidth',lw2,'markersize',ms)
+            plot(0:100,glf_tf2(kk*27+k,:),'-','color',colt,'linewidth',lw2,'markersize',ms)
             hold on
-            plot(0:100,glf_cf(kk*27+k,:),'color',colc,'linewidth',lw2,'markersize',ms)
+            plot(0:100,glf_cf(kk*27+k,:),'-','color',colc,'linewidth',lw2,'markersize',ms)
 
             box off
             axis tight
@@ -221,7 +221,7 @@ tmp(:,end) = glf_cf(:,end);
 
 ax(3)=subsubplot(1,2,1,2,2,3,'vpad',vp,'hpad',hp);
 
-haha=1:10:101; 
+haha=1:1:101; 
 
 hold on
 for k=1:183
@@ -230,7 +230,7 @@ for k=1:183
    if ismember(k,lb)
       pl(k) = plot(haha-1,(tmp(k,haha)-tmp(k,1))*sc,'-','color',col(k,:),'linewidth',lw2); 
       if k==183
-         txt(k)=text(90,(tmp(k,90)-tmp(k,1))*sc,Dn.name{k},'fontsize',6,'fontweight','bold','horiz','right','vert','bot','color',col(k,:));
+         txt(k)=text(80,(tmp(k,80)-tmp(k,1))*sc,Dn.name{k},'fontsize',6,'fontweight','bold','horiz','right','vert','bot','color',col(k,:));
       else
          txt(k)=text(100,(tmp(k,end)-tmp(k,1))*sc,Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:));
       end
@@ -242,21 +242,21 @@ pl(183).LineWidth = 1;
 txt(183).FontWeight = 'bold'; 
 txt(48).VerticalAlignment='bottom'; 
 box off
-axis([0 100 0 3100])
+axis([0 100 0 2500])
 set(gca,'fontsize',7,'xtick',0:20:100,'color','none')
 xtickangle(0)
 xlabel 'Percent mass lost to thinning'
 ntitle(' c','location','nw','fontweight','bold','fontsize',8,'horiz','right')
 set(gca,'ytick',0:500:3000,'yticklabel','')
-tl = 500:500:2000; 
+tl = 500:500:1500; 
 text(zeros(size(tl)),tl,num2str(tl'),'fontsize',7,'color',ycol,'vert','bot')
-text(0,2500,'2500 Gt yr^{-1}','fontsize',7,'color',ycol,'vert','bot')
-hl=hline(0:500:2500,'color',ycol,'linewidth',.2); 
+text(0,2000,'2000 Gt yr^{-1}','fontsize',7,'color',ycol,'vert','bot')
+hl=hline(0:500:2000,'color',ycol,'linewidth',.2); 
 uistack(hl(:),'bottom');
 set(gca,'ycolor','none')
 ylabel('Change in GL flux','color',ycol,'visible','on')
 
-lb=[183.00        132.00         48.00         10.00        155.00];
+lb=[183.00        132.00         48.00         10.00 ];
 %ax(4) = subplot(2,4,6);
 ax(4)=subsubplot(1,2,1,2,2,4,'vpad',vp,'hpad',hp);
 hold on
@@ -265,7 +265,7 @@ for k=1:183
    if ismember(k,lb)
       pl(k) = plot(pct(haha),glf_cf(k,haha)-glf_cf(k,1),'-','color',col(k,:),'linewidth',lw2); 
       if k==183
-         txt(k)=text(pct(97),glf_cf(k,97)-glf_cf(k,1),Dn.name{k},'fontsize',6,'fontweight','bold','horiz','right','vert','bot','color',col(k,:));
+         txt(k)=text(pct(99),glf_cf(k,99)-glf_cf(k,1),Dn.name{k},'fontsize',6,'fontweight','bold','horiz','right','vert','bot','color',col(k,:));
       else
          txt(k)=text(100,glf_cf(k,end)-glf_cf(k,1),Dn.name{k},'fontsize',6,'horiz','left','vert','middle','color',col(k,:));
       end
@@ -276,14 +276,14 @@ end
 pl(183).LineWidth = 1; 
 %txt(183).FontWeight = 'bold'; 
 txt(48).VerticalAlignment='bottom'; 
-txt(155).VerticalAlignment='top'; 
+%txt(155).VerticalAlignment='top'; 
 box off
-axis([0 100 0 3100])
+axis([0 100 0 2500])
 set(gca,'fontsize',7,'xtick',0:20:100,'ycolor','none','color','none')
 xlabel 'Percent mass lost to calving'
 xtickangle(0)
 ntitle(' d','location','nw','fontweight','bold','fontsize',7,'horiz','right')
-hl=hline(0:500:2500,'color',ycol,'linewidth',.2); 
+hl=hline(0:500:2000,'color',ycol,'linewidth',.2); 
 uistack(hl(:),'bottom');
 
 ax(5)=subplot(1,2,2); 
@@ -294,16 +294,16 @@ caxis([-180 180])
 cmocean phase 
 ind = glf_cf(:,end)>25; 
 ind(dg>200) = true; 
-ind([19 33 49 74 81 87 113 146 147 182:183]) = false; % remove labels that clutter 
+ind([19 33 49 74 81 87 113 125 146 147 182:183]) = false; % remove labels that clutter 
 text(glf_cf(ind,1),dg(ind),Dn.name(ind),'horiz','center','vert','bot','fontsize',6,...
    'fontangle','italic','color',.35*[1 1 1])
 axis tight
-title('Response to total ice shelf collapse','fontsize',8,'fontweight','normal')
+title('Response to Total Ice Shelf Collapse','fontsize',8,'fontweight','normal')
 xlabel('Modeled present-day GL flux (Gt yr^{-1})','fontsize',7)
 ylabel('Acceleration (%)','fontsize',7)
 set(gca,'fontsize',7)
 
-[X,Y] = meshgrid(0:10:250,0:10:450);
+[X,Y] = meshgrid(0:10:260,0:10:400);
 
 %G = (1+Y/100).*X; 
 G = (Y/100).*X; 
@@ -314,14 +314,14 @@ hC.Color = ycol;
 hC.LineWidth = 0.2; 
 
 uistack(hC,'bottom')
-axis([0 250 0 450])
+axis([0 260 0 380])
 
-n = 50:50:1100; 
-ny = 100*n./(250*ones(size(n))); 
+n = 50:50:950; 
+ny = 100*n./(260*ones(size(n))); 
 str = num2str(n','%-4.f'); 
-txt = text(250*ones(size(n)),ny,str,'vert','middle','fontsize',6,'color',ycol); 
+txt = text(260*ones(size(n)),ny,str,'vert','middle','fontsize',6,'color',ycol); 
 %txt2 = text(250,20,'50 Gt yr^{-1}','vert','middle','fontsize',6,'color',.8*[1 1 1]); 
-txt2 = text(260,mean(ylim),'Instantaneous increase in GL flux Gt yr^{-1}',...
+txt2 = text(270,mean(ylim),'Instantaneous increase in GL flux Gt yr^{-1}',...
    'rotation',90,'fontsize',6,'color',ycol,'vert','top','horiz','center');
 col = mat2rgb(lon,cmocean('phase'),[-1 1]*180); 
 pos = get(gca,'outerposition');
@@ -330,8 +330,9 @@ set(gca,'outerposition',pos+[-.04 0 0 0]) % snuggle up
 ntitle(' e ','location','nw','fontweight','bold','fontsize',8)
 
 gp = plotboxpos(gca);
-axes('position',[gp(1)+(.75)*gp(3) gp(2) .25*gp(3) .25*gp(4)])
- 
+%axes('position',[gp(1)+(.75)*gp(3) gp(2) .25*gp(3) .25*gp(4)])
+ axes('position',[gp(1)+(.7)*gp(3) gp(2) .3*gp(3) .3*gp(4)])
+
 hold on
 for k = 1:181
    plot(P(k),'facecolor',col(k,:),'facealpha',1,'edgecolor','none')
@@ -343,10 +344,10 @@ axis tight off
 bedmachine('coast','color',0.3*[1 1 1],'linewidth',0.1)
 bedmachine('gl','color',0.3*[1 1 1],'linewidth',0.1)
 gp2 = plotboxpos(gca); 
-set(gca,'xcolor','none','ycolor','none','pos',[gp(1)+(.75)*gp(3) gp(2) gp2(3) gp2(4)])
+set(gca,'xcolor','none','ycolor','none','pos',[gp(1)+(.7)*gp(3) gp(2) gp2(3) gp2(4)])
 set(gca,'fontsize',7)
 
-% export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/catastrophic_calving_response.jpg','-pdf','-r600','-painters')
+% export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_results_compiled.jpg','-pdf','-r600','-painters')
 
 %% Old stuff 
 

@@ -9,7 +9,7 @@
 %D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube_1992-2018.mat','x','y','year','ground'); 
 load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_calve_v2.mat','ice_mask_results') % contains control, then historical, then future
 
-G = load('issm_gl_flux.mat'); % from issm_thickness_response_analysis.m
+G = load('issm_gl_flux_strict.mat'); % from issm_thickness_response_analysis.m
 %%
 
 isg = all(ice_mask_results==1,2); 
