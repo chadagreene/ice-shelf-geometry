@@ -7,7 +7,7 @@
 %% Load data 
 
 %D = load('/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_thickness_cube_1992-2018.mat','x','y','year','ground'); 
-load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_calve_v2.mat','ice_mask_results') % contains control, then historical, then future
+load('/Users/cgreene/Documents/MATLAB/DEM_generation/ice_vel_results_calve_v2.mat') % contains control, then historical, then future
 
 G = load('issm_gl_flux_strict.mat'); % from issm_thickness_response_analysis.m
 %%
@@ -34,7 +34,7 @@ k=1;
 figure('color',rgb('gray'))
 tmp = ice_vel_results(:,25+k)-ice_vel_results(:,26); 
 good = ice_vel_results(:,25+k)>0; 
-h = fastscatter(x,y,tmp); 
+h = fastscatter(x,y,tmp,'markersize',1); 
 hold on
 box off 
 axis tight off
@@ -55,9 +55,9 @@ pl1 = plot(0:100,G.glf_cf(end,:),'color',rgb('dark red'),'linewidth',1);
 hold on
 pl2 = plot(100,G.glf_cf(end,end),'o','markersize',4,'markerfacecolor',rgb('dark red'),'color',rgb('dark red'),'linewidth',1); 
 set(ax,'pos',[.45 .45 .32 .38],'color','none','fontsize',7,'xtick',0:10:100)
-xlabel('percent ice shelf collapse','fontsize',7)
+xlabel('Percent ice shelf area collapse','fontsize',7)
 box off
-axis([0 100 2100 5200])
+axis([0 100 2100 4600])
 title 'Grounding Line Flux (Gt/yr)'
 
 axes(axmap) % makes map axes current 
@@ -74,7 +74,7 @@ for k=1:101
    delete(h); 
    tmp = ice_vel_results(:,25+k)-ice_vel_results(:,26); 
    good = ice_vel_results(:,25+k)>0; 
-   h = fastscatter(x(good),y(good),tmp(good)); 
+   h = fastscatter(x(good),y(good),tmp(good),'markersize',1); 
    uistack(h,'bottom')
    uistack(ab,'bottom'); 
 
