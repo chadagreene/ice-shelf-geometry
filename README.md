@@ -1,28 +1,28 @@
 # ice-shelf-geometry
 Matlab scripts that use all available observations to grow and trim the extents of Antarctic ice shelves.
 
+![](animations/coastal_change_animations_larsens.mp4)
+
 ## Data Products
+![](figures/extruded_velocity_thickness_and_masks.jpg)
+
 These scripts work together to create a dataset `extruded_antarctica_*.h5`, which is currently on devon at `/mnt/devon-r2/shared_data/greene`. The data in the h5 file include: 
 
 * **`vx, vy`**: Velocity components extended beyond present-day coastlines to fill the entire map. Velocity _magnitude_ is constantly extrapolated from the perimeter of observed velocities. Velocity _direction_ is obtained by the Matlab `inpaint_nans` algorithm applied to measured velocity multiplied by measured thickness. 
-![](extruded_velocity.png)
 * **`v_source`**: Sources of the velocity components are:
 	1. [ITS\_LIVE](https://nsidc.org/apps/itslive/) ([Gardner et al., 2018](https://doi.org/10.5194/tc-12-521-2018)), 
 	2. [MEaSUREs v2](https://nsidc.org/data/NSIDC-0484/versions/2) ([Rignot et al., 2017](https://doi.org/10.5067/D7GK8F5J8M8R)), 
 	3. Error-weighted mean of ITS\_LIVE and MEaSUREs v2. 
 	4. Interpolation, and
 	5. Extrapolation. 
-![](extruded_v_source.png)
 * **`thickness`**: Ice thickness extrapolated beyond present-day coastlines to fill the entire map. 
-![](extruded_thickness.png)
 * **`thickness_source`**: Sources of the thickness data are prioritized in the following order, which uses the newest data available, and fills in recently calved areas (such as Larsen B) with older datasets. Mean firn air content from the Glacier Energy and Mass Balance (GEMB) model (ISSM and Gardner's thesis) was subtracted from surface elevation datasets before inverting for thickness (multiply geoid-referenced surface by 9.3364). The BedMachine thickness product is the basis, but all other "thickness" observations are inverted surface elevations. 
 	1. BedMachine Antarctica (Morlighem et al., 2020), 
 	2. REMA - GEMB, 
 	3. Bedmap2 - GEMB, 
 	4. Bamber - GEMB, 
 	5. RAMP2 - GEMB
-![](extruded_thickness_source.png)
-* **`iceshelf_mask`**: Mask of 181 ice shelves from [Mouginot et al., 2017](https://doi.org/10.5067/AXE4121732AD), dilated by `iceshelf_mask_generator.m` and extruded by `flow_dem_extend.m`. ![](extruded_iceshelf_mask.png)
+* **`iceshelf_mask`**: Mask of 181 ice shelves from [Mouginot et al., 2017](https://doi.org/10.5067/AXE4121732AD), dilated by `iceshelf_mask_generator.m` and extruded by `flow_dem_extend.m`. 
 
 ## Script Workflow 
 1. **`iceshelf_mask_generator.m`** uses Mouginot's iceshelves\_2008\_v2 outlines to create `iceshelf_mask.mat`, which contains a 240 m resolution mask on the ITS\_LIVE. This script also dilates the ice shelf mask by 100 km to account for any possible ice shelf growth. *This mask is not a final product!* It is modified by `flow_dem_extend.m` to create the `iceshelf_mask` in the `extruded_antarctica_*.h5` file. 
@@ -39,7 +39,7 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 12. **`iceshelf_thickness_cube_generator.m`** creates thickness cubes on the 240 ITS_LIVE velocity grid, annually for for the observed period 1992-2018, and every two years for the next 50 years, if trends from the past quarter century continue. (Trends from the pole hole only covered by CryoSat-2 are calculated for 2010-2018). This script creates `iceshelf_thickness_cube_1992-2018.mat` and `iceshelf_thickness_cube_future.mat`, which are for the ISSM past and "future" thickness-change experiments.  
 13. **`issm_calving_melt_setup.m`** sets up the geometry to initialize the ISSM experiment. This script creates `issm_calving_melt_setup.mat`. 
 14. **`calving_flux_calculation_cartoon.m`** creates this figure to explain how steady-state calving flux is calculated: 
-![](calving_flux_calculation_cartoon.png)
+![](figures/calving_flux_calculation_cartoon.png)
 
 
 ## Functions and other files 
