@@ -1,7 +1,7 @@
 # ice-shelf-geometry
 Matlab scripts that use all available observations to grow and trim the extents of Antarctic ice shelves.
 
-![](animations/coastal_change_animations_larsens.mp4)
+<video src='animations/coastal_change_animations_larsens.mp4' width=400/>
 
 ## Data Products
 ![](figures/extruded_velocity_thickness_and_masks.jpg)
@@ -43,7 +43,7 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 
 
 ## Functions and other files 
-* **`inpolygon_map()`** is a _much_ faster version of `inpolygon` used by `iceshelf_mask_generator.m` to mask ice shelf boundaries. 
+* **`inpolygon_map()`** is a _much_ faster version of `inpolygon` and is used by `iceshelf_mask_generator.m` to mask ice shelf boundaries. 
 * **iceshelves\_2008\_v2\_names.csv** contains the names and numerical indices of all 181 ice shelves in the extended ice shelf mask. 
 * **README\_issm\_model\_setup\_files.txt** Notes on the ISSM experiment setup with descriptions of the variables and how they were created. 
 * **reference\_coastline\_logbook.xls** a reference to help me keep straight which indices of which ice cube masks correspond to which years. 
