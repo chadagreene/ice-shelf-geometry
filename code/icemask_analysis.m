@@ -78,8 +78,9 @@ lw1=0.5; % contributing linewidth
 lw2 = 1; % composite linewidth
 ms=3; % markersize
 
+figure('pos',[40 40 560 760])
 for kk=0:6
-   figure('pos',[40 40 560 760])
+   clf
    for k = 1:27
       if (kk*27+k)<=183
          subsubplot(7,4,k,'vpad',0.04,'hpad',0.04) 
@@ -116,16 +117,24 @@ for kk=0:6
    % Move the legend to the empty axis position and delete the empty axes: 
    lg.Position=tmpax.Position;
    delete(tmpax)
+% 
+%    if kk==0
+%       sgtitle('Ice shelf area time series (km^2)','fontsize',8) 
+%    else
+%       sgtitle('Ice shelf area time series (km^2), continued','fontsize',8) 
+%    end
 
-   if kk==0
-      sgtitle('Ice shelf area time series (km^2)','fontsize',8) 
-   else
-      sgtitle('Ice shelf area time series (km^2), continued','fontsize',8) 
+   sgtitle('Ice shelf area time series (km^2)','fontsize',8) 
+
+
+   %export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/iceshelf_area_timeseries/iceshelf_area_timeseries_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
+   filename = '/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/iceshelf_area_timeseries.pdf';
+   if k==0
+      assert(~exist(filename,'file'),[filename,' already exists'])
    end
-
-   export_fig(['/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/iceshelf_area_timeseries/iceshelf_area_timeseries_',num2str(kk+1),'.pdf'],'-r600','-painters','-p0.02')
-
+   export_fig(filename,'-r600','-painters','-nocrop','-append')
 end
+return
 %%
 
 figure('pos',[14 500 500 310])
