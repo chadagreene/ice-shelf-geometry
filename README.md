@@ -1,7 +1,7 @@
 # ice-shelf-geometry
 Matlab scripts that use all available observations to grow and trim the extents of Antarctic ice shelves.
 
-<video src='animations/coastal_change_animations_larsens.mp4' width=400/>
+![](animations/coastal_change_animations_larsens.mp4)
 
 ## Data Products
 ![](figures/extruded_velocity_thickness_and_masks.jpg)
