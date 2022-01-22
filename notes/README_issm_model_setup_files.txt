@@ -2,11 +2,12 @@ These files can be used to set up ISSM experiments for to compare the effects of
 
 All data in these files are on the ITS_LIVE 240 m grid. 
 
-The four experiments: 
+The five experiments: 
 1. Observed calving 1997 to 2021: 24 ~annual masks are in icemask_composite.mat. 
 2. Hypothetical calving 0 to 100% of all ice shelves: 101 masks in 1% increments are in icemask_buffered.mat. 
 3. Observed thinning 1992 to 2018: Annual thickness cube is in iceshelf_thickness_cube_1992-2018.mat. 
-4. Hypothetical future thinning if 1992-2018 rates continue: 50 years of future thinning from 2018, in 2 year increments in iceshelf_thickness_cube_future.mat. 
+4. Hypothetical future thinning if 1992-2018 rates continue: 50 years of future thinning from 2018, in 2 year increments in iceshelf_thickness_cube_future.mat (these results are not used). 
+5. Hypothetical future thinning in 1% increments until every ice shelf is 1 m thick everywhere. For the manuscript, the 1 m thick case is replaced with the 100% calved case. 
 
 Notes: 
 * In some of the files below I've named the variable `thickness`, but elsewhere it's `H`. It's the same variable, sorry for switching it up. 
