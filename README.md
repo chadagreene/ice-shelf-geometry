@@ -2,7 +2,7 @@
 This repo contains Antarctic coastline data and the Matlab scripts we developed to use all available observations we can find, to build an uninterrupted, high-resolution coastline.
 
 Here's an animation of the final product: 
-[![Calving animation](figures/screenshot.png)](https://www.youtube.com/embed/G7E7rE5npvg "Antarctic Ice Shelf Calving, 1997-2021")
+[![Calving animation](figures/screenshot.png)](https://youtu.be/mxrcZXS49Sw "Antarctic Ice Shelf Calving, 1997-2021")
 
 ## Figures & Animations
 <img src="figures/coastal_change_maps.jpg" height="200"></img> <img src="figures/coastal_change_maps_part2.jpg" height="200"></img>
