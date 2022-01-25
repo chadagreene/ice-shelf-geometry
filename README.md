@@ -74,5 +74,5 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 ## Citation 
 The data and code in this repository all go along with a manuscript that is currently in review. If you use this data, please get in touch with me or check back here for the latest citation information. 
 
-
-
+## Acknowledgments 
+This work was supported by the NASA Postdoctoral Program and the [NASA MEaSUREs ITS\_LIVE ](https://its-live.jpl.nasa.gov/)project.
