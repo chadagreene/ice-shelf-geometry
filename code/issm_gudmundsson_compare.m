@@ -35,5 +35,32 @@ uistack(ab,'bottom')
 
 % export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_gudmundsson_compare.jpg','-r600','-painters')
 
+%%
 
+good = good & isiceshelf(x,y); 
+
+dv = thickness_vel_results(good,26)-thickness_vel_results(good,19); 
+dvp = 100*dv./thickness_vel_results(good,19);
+
+figure('pos',[82.00        457.00        357.00        286.00])
+fastscatter(x(good),y(good),dvp,'markersize',1)
+axis tight off
+bedmachine('gl','color',rgb('gray'),'linewidth',0.2)
+bedmachine('coast','color',rgb('gray'),'linewidth',0.2)
+caxis([-1 1]*10)
+cmocean bal
+cb = colorbarps('fontsize',6); 
+set(cb,'xtick',-10:5:10)
+xlabel(cb,'Change in speed (%)')
+
+cm = cmocean('bal'); 
+ab = antbounds('gl','polyshape','edgecolor','none','facecolor',cm(128,:),'facealpha',1);
+uistack(ab,'bottom')
+
+cm = [flipud(brewermap(128,'blues'));
+brewermap(128,'YlOrRd')]; 
+
+colormap(cm)
+
+% export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_gudmundsson_compare_brewermap.jpg','-r600','-painters')
 
