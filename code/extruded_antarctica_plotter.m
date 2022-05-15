@@ -114,6 +114,8 @@ colormap(gca,cm)
 ntitle('iceshelf_mask','interpreter','none','fontname','courier','fontweight','bold','fontsize',7,'location','center')
 
 % export_fig 'extruded_velocity_thickness_and_masks.jpg' -r600 -painters
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED3.eps','contenttype','vector')
+return
 
 %% Ice Shelf mask 
 

@@ -132,7 +132,7 @@ for kk=0:6
    if k==0
       assert(~exist(filename,'file'),[filename,' already exists'])
    end
-   export_fig(filename,'-r600','-painters','-nocrop','-append')
+   %export_fig(filename,'-r600','-painters','-nocrop','-append')
 end
 return
 %%
@@ -160,8 +160,8 @@ for k = 1:181
       ax.YAxis.Exponent = 0;
       ytickformat('%.0f');
 
-      export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_',D.name{k},'.png'],...
-         '-r600','-p0.01','-painters')
+%       export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_',D.name{k},'.png'],...
+%          '-r600','-p0.01','-painters')
    end
 end
 
@@ -185,9 +185,9 @@ ax = gca;
 ax.YAxis.Exponent = 0;
 ytickformat('%.0f');
 
-export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_Antarctica.png'],...
-   '-r600','-p0.01','-painters')
-
+% export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_timeseries_Antarctica.png'],...
+%    '-r600','-p0.01','-painters')
+return
 %% Make a single figure with all area time series on it
 
 Ad = A-A(1,:); 
@@ -215,6 +215,7 @@ ytickformat('%.0f');
 
 % export_fig(['/Users/cgreene/Documents/MATLAB/DEM_generation/iceshelf_area_timeseries/area_change_timeseries_all.png'],...
 %    '-r600','-p0.01','-painters')
+return
 %%
 
 figure

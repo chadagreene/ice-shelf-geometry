@@ -188,18 +188,19 @@ set(gca,'xcolor','none','ycolor','none','pos',[gp(1)+gp(3)-gp2(3) gp(2)+gp(4)-gp
  
 %exportgraphics(gcf,'calving_vs_thinning_masschange.pdf'); 
 %export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/calving_vs_thinning_masschange.jpg','-pdf','-r600','-painters') 
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED2.eps','contenttype','vector')
 
 %%
-
-A1 = A_calving(1,1:181); 
-dA = A_calving(25,1:181)-A_calving(1,1:181); 
-[A1,ind] = sort(A1); 
-dA = dA(ind); 
-
-for k=1:181
-   N_losers_percent(k) = 100*sum(dA(1:k)<0)/k;
-   A_loss_below(k) = mean(100*dA(1:k)./A1(1:k)); 
-end
+% 
+% A1 = A_calving(1,1:181); 
+% dA = A_calving(25,1:181)-A_calving(1,1:181); 
+% [A1,ind] = sort(A1); 
+% dA = dA(ind); 
+% 
+% for k=1:181
+%    N_losers_percent(k) = 100*sum(dA(1:k)<0)/k;
+%    A_loss_below(k) = mean(100*dA(1:k)./A1(1:k)); 
+% end
 
 
 

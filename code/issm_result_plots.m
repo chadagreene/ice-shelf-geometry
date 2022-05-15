@@ -348,7 +348,7 @@ set(gca,'xcolor','none','ycolor','none','pos',[gp(1)+(.7)*gp(3) gp(2) gp2(3) gp2
 set(gca,'fontsize',7)
 
 % export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_results_compiled.jpg','-pdf','-r600','-painters')
-
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_4.eps','contenttype','vector')
 %% Old stuff 
 
 %% Generate pdfs of response to hypothetical thinning

@@ -34,6 +34,8 @@ ab = antbounds('gl','polyshape','edgecolor','none','facecolor',cm(128,:),'faceal
 uistack(ab,'bottom')
 
 % export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/issm_gudmundsson_compare.jpg','-r600','-painters')
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED7.eps','contenttype','vector')
+
 
 %%
 

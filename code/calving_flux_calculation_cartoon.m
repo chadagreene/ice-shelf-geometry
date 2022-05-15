@@ -80,3 +80,4 @@ axis([1 5 1 5]+[.3 -.3 .6 -.6])
 daspect([1 1 1])
 
 % export_fig calving_flux_calculation_cartoon.png -r600
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED5.eps','contenttype','vector')

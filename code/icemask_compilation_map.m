@@ -288,7 +288,7 @@ for kk=1:9;q(kk).Color(4) = 0.5; end
 
 %export_fig coastal_change_maps.jpg -r600 -painters -p0.005
 %export_fig coastal_change_maps_1200dpi.jpg -r1200 -painters -p0.005
-
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_1.eps','contenttype','vector')
 %% B-list maps 
 % These are the second-rate or otherwise uninteresting ice shelves that
 % didn't make the cut for the primary map. 
@@ -520,6 +520,8 @@ for kk=1:9;q(kk).Color(4) = 0.5; end
 
 %export_fig coastal_change_maps_part2.jpg -r600 -painters -p0.005
 %export_fig coastal_change_maps_part2_1200dpi.jpg -r1200 -painters -p0.005
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED1.eps','contenttype','vector')
+
 %% * * * * * * SUBFUNCTIONS * * * * * * 
 
 function RGB = mat2rgb(val,cmap,limits)

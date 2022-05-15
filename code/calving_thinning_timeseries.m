@@ -35,7 +35,8 @@ plot(-4.32,polyval(pv,-4.32),'k+')
 text(-4.32,polyval(pv,-4.32),' Iceberg A76 ','vert','top','horiz','left','fontsize',6); 
 
 % export_fig ronne_area_to_mass.png -pdf -r600 -painters
-
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED4.eps','contenttype','vector')
+return
 %% Add the 2021 Ronne calving to the time series: 
 
 year = [year 2021.4]; 
@@ -173,6 +174,8 @@ axis([1962 max(extrapyr) -18 1.9])
 set(gca,'xtick',1965:5:2040)
 % export_fig calving_past_and_future.png -r600 -painters
 % export_fig calving_past_and_future.pdf -r600 -painters
+
+% exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_3.eps','contenttype','vector')
 %%
 
 fs1 = 5; 
@@ -376,6 +379,7 @@ set(gca,'ycolor','none','xcolor',axcol)
 %exportgraphics(gca,'cumulative_area_change.pdf')
 % export_fig test.png -r600 -painters -p0.01
 %export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/cumulative_area_change.jpg','-r600','-painters') 
+%exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_2.eps','contenttype','vector')
 
 %% (OLD) Time series of past and future calving 
 % 
