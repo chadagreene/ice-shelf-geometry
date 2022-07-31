@@ -34,7 +34,7 @@ Extruded velocity and thickness fields are currently posted [here](http://chadag
 
 > Note to self: These scripts work together to create a dataset `extruded_antarctica_*.h5`, which is currently on devon at `/mnt/devon-r2/shared_data/greene`.
 
-The data in the h5 file include: 
+The data in the h5 file and in `antarctica_icemasks_extruded_velocity_and_thickness.nc` include: 
 
 * **`vx, vy`**: Velocity components extended beyond present-day coastlines to fill the entire map. Velocity _magnitude_ is constantly extrapolated from the perimeter of observed velocities. Velocity _direction_ is obtained by the Matlab `inpaint_nans` algorithm applied to measured velocity multiplied by measured thickness. 
 * **`v_source`**: Sources of the velocity components are:
