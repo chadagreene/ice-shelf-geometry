@@ -66,6 +66,7 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 13. **`issm_calving_melt_setup.m`** sets up the geometry to initialize the ISSM experiment. This script creates `issm_calving_melt_setup.mat`. 
 14. **`calving_flux_calculation_cartoon.m`** creates this figure to explain how steady-state calving flux is calculated:  ![](figures/calving_flux_calculation_cartoon.png)
 15. **`issm_thickness_response_analysis.m`** converts the modeled response velocities at each ISSM node into grounding line flux. This script creates `issm_gl_flux_strict.mat`, which is called by all the other ISSM plotting scripts.  
+16. **`gridded_data_resave.m`** saves the time-evolving ice mask and the extruded thickness and velocity fields as NetCDFs. 
 
 ## Functions and other files 
 * **`inpolygon_map()`** is a _much_ faster version of `inpolygon` and is used by `iceshelf_mask_generator.m` to mask ice shelf boundaries. 

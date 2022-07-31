@@ -187,7 +187,7 @@ gp2 = plotboxpos(gca);
 set(gca,'xcolor','none','ycolor','none','pos',[gp(1)+gp(3)-gp2(3) gp(2)+gp(4)-gp2(4) gp2(3) gp2(4)])
  
 %exportgraphics(gcf,'calving_vs_thinning_masschange.pdf'); 
-%export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/calving_vs_thinning_masschange.jpg','-pdf','-r600','-painters') 
+%export_fig('/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED2.jpg','-pdf','-eps','-r1200','-painters') 
 % exportgraphics(gcf,'/Users/cgreene/Documents/GitHub/ice-shelf-geometry/figures/fig_ED2.eps','contenttype','vector')
 
 %%
