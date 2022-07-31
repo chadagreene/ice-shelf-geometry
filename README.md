@@ -1,7 +1,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5903643.svg)](https://doi.org/10.5281/zenodo.5903643)
 
 # Antarctic Ice Shelf Calving, 1997-2021
-This repo contains Antarctic coastline data and the Matlab scripts we developed to use all available observations we can find, to build an uninterrupted, high-resolution coastline.
+This repo contains Antarctic coastline data and the MATLAB scripts we developed to use all available observations we can find, to build an uninterrupted, high-resolution coastline. Our findings are described in *[Greene et al., 2022](https://doi.org/10.1038/s41586-022-05037-w)*.
 
 Here's an animation of the final product: 
 [![Calving animation](figures/screenshot.png)](https://youtu.be/mxrcZXS49Sw "Antarctic Ice Shelf Calving, 1997-2021")
@@ -17,22 +17,24 @@ Here's an animation of the final product:
 * 19 regional high-resolution static maps of coastal evolution from 1997 to 2021.
 
 ### The [figures](figures) folder contains: 
-* every figure from the *Greene et al.,* 2022 manuscript.
+* the submitted versions of every figure from the [*Greene et al.,* 2022](https://doi.org/10.1038/s41586-022-05037-w) manuscript.
 
 ## Data 
 ### Final [Data](data) Products
 * Text files of ~annual Antarctic coastlines. The decimal year corresponding to each mapping is in each filename. 
-* Gridded ~annual Antarctic coastlines in the `icemask_composite.mat` file at 240 m resolution. If you're using Python, check out the options for reading a .mat file [here](https://www.delftstack.com/howto/python/read-mat-files-python/). 
+* Gridded ~annual Antarctic coastline masks at 240 resolution can be found in `icemask_composite.nc` or `icemask_composite.mat` if you prefer MATLAB's .mat format. 
 * `greene_iceshelf_area_and_mass.xlsx` contains time series of every ice shelf's area and mass. 
 * `calving_flux_timeseries.mat` contains a .mat form of the data that goes into the Excel spreadsheet. 
 * The `issm_gl_flux_strict.mat` contains modeled grounding line flux responses to various test cases. In it the `glf_0` variable is the control run. `glf_cp` contains the response to past calving, `glf_cf` contains the reponses to hypothetical future calving from 0 to 100 percent ice shelf loss by area. `glf_tp` is the response to past thinning, and `glf_tf2` is the respones to hypothetical future thinning (where the very last entry is the 1 m ice shelf case everywhere). 
 
 ### Intermediate Data Products
-Due to file size limitations, we can't upload all of the intermediate data products that were created along the way to the final product, but their descriptions are presented here for posterity:
+Extruded velocity and thickness fields are currently posted [here](http://chadagreene.com/data/antarctica_icemasks_extruded_velocity_and_thickness.nc), and are described below.
 
 ![](figures/extruded_velocity_thickness_and_masks.jpg)
 
-These scripts work together to create a dataset `extruded_antarctica_*.h5`, which is currently on devon at `/mnt/devon-r2/shared_data/greene`. The data in the h5 file include: 
+> Note to self: These scripts work together to create a dataset `extruded_antarctica_*.h5`, which is currently on devon at `/mnt/devon-r2/shared_data/greene`.
+
+The data in the h5 file include: 
 
 * **`vx, vy`**: Velocity components extended beyond present-day coastlines to fill the entire map. Velocity _magnitude_ is constantly extrapolated from the perimeter of observed velocities. Velocity _direction_ is obtained by the Matlab `inpaint_nans` algorithm applied to measured velocity multiplied by measured thickness. 
 * **`v_source`**: Sources of the velocity components are:
@@ -75,7 +77,9 @@ These scripts work together to create a dataset `extruded_antarctica_*.h5`, whic
 * **reference\_coastline\_logbook.xls** a reference to help me keep straight which indices of which ice cube masks correspond to which years. 
 
 ## Citation 
-The data and code in this repository all go along with a manuscript that is currently in review. If you use this data, please get in touch with me or check back here for the latest citation information. 
+If you use this data, please cite our *Nature* paper! 
+
+Greene, Chad A., Alex S. Gardner, Nicole-Jeanne Schlegel & Alexander D. Fraser. Antarctic calving loss rivals ice-shelf thinning. *Nature*, 2022. [doi:10.1038/s41586-022-05037-w](https://doi.org/10.1038/s41586-022-05037-w)
 
 ## Acknowledgments 
 This work was supported by the NASA Postdoctoral Program and the [NASA MEaSUREs ITS\_LIVE ](https://its-live.jpl.nasa.gov/)project.
