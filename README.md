@@ -1,7 +1,7 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5903643.svg)](https://doi.org/10.5281/zenodo.5903643)
+[![DOI:10.1038/s41586-022-05037-w](https://zenodo.org/badge/DOI/10.1038/s41586-022-05037-w.svg)](https://doi.org/10.1038/s41586-022-05037-w)
 
 # Antarctic Ice Shelf Calving, 1997-2021
-This repo contains Antarctic coastline data and the MATLAB scripts we developed to use all available observations we can find, to build an uninterrupted, high-resolution coastline. Our findings are described in *[Greene et al., 2022](https://doi.org/10.1038/s41586-022-05037-w)*.
+This repo contains Antarctic coastline data and the MATLAB scripts we developed to use all available observations we can find, to build an uninterrupted, high-resolution coastline. Our findings are described in *[Greene et al., 2022](https://www.nature.com/articles/s41586-022-05037-w)*.
 
 Here's an animation of the final product: 
 [![Calving animation](figures/screenshot.png)](https://youtu.be/mxrcZXS49Sw "Antarctic Ice Shelf Calving, 1997-2021")
