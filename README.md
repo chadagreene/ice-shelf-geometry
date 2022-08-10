@@ -79,7 +79,7 @@ The data in the h5 file and in `antarctica_icemasks_extruded_velocity_and_thickn
 ## Citation 
 If you use this data, please cite our *Nature* paper! 
 
-Greene, Chad A., Alex S. Gardner, Nicole-Jeanne Schlegel & Alexander D. Fraser. Antarctic calving loss rivals ice-shelf thinning. *Nature*, 2022. [doi:10.1038/s41586-022-05037-w](https://doi.org/10.1038/s41586-022-05037-w)
+Greene, C.A., Gardner, A.S., Schlegel, NJ. et al. Antarctic calving loss rivals ice-shelf thinning. *Nature* (2022). [doi:10.1038/s41586-022-05037-w](https://doi.org/10.1038/s41586-022-05037-w)
 
 ## Acknowledgments 
 This work was supported by the NASA Postdoctoral Program and the [NASA MEaSUREs ITS\_LIVE ](https://its-live.jpl.nasa.gov/)project.
