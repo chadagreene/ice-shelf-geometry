@@ -33,7 +33,7 @@ iceshelf_mask = uint8(iceshelf_mask);
 
 % 1. Create netCDF file handle and Attributes
 mode = netcdf.getConstant('NETCDF4');
-mode = bitor(mode,netcdf.getConstant('CLASSIC_MODEL'));
+%mode = bitor(mode,netcdf.getConstant('CLASSIC_MODEL'));
 ncid=netcdf.create(filename,mode);
 netcdf.putAtt(ncid,netcdf.getConstant('NC_GLOBAL'),'Conventions','CF-1.7');
 netcdf.putAtt(ncid,netcdf.getConstant('NC_GLOBAL'),'Title','Antarctic ice masks, extruded velocity and extruded thickness');
@@ -115,8 +115,8 @@ netcdf.putAtt(ncid, ice_var_id,'long_name','Binary grid indicates presence of ic
 netcdf.putAtt(ncid, ice_var_id,'grid_mapping', 'mapping');
 
 % Define mask
-mask_var_id = netcdf.defVar(ncid,'iceshelf_mask','NC_BYTE',[x_id y_id]);
-netcdf.putAtt(ncid, mask_var_id,'long_name',    'See iceshelves_2008_v2_names.csv for all 181 ice shelf names.');
+mask_var_id = netcdf.defVar(ncid,'iceshelf_mask','NC_UBYTE',[x_id y_id]);
+netcdf.putAtt(ncid, mask_var_id,'long_name',    'See greene_Supplementary_Table_1.xlsx for all 181 ice shelf names.');
 netcdf.putAtt(ncid, mask_var_id,'data_source',    'Ice shelf masks dilated and extruded from Mouginot 2008 data.');
 netcdf.putAtt(ncid, mask_var_id,'grid_mapping', 'mapping');
 
